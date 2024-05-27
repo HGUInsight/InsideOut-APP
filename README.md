@@ -1,2 +1,2 @@
 # GitTemplates
-GitTemplates
+branch 확인
