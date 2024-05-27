@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,7 +42,7 @@ final _router = GoRouter(initialLocation: '/login', routes: [
             //debugPrint('state :'+snapshot.data!.uid);
             if (snapshot.hasData) {
               return StreamBuilder(
-                stream: Firebase,
+                stream: FirebaseFirestore.instance.collection('user').snapshots(),
                 builder: (context, userdt) {
                   return const MainPage();
                 }
