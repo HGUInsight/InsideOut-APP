@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308593416369",
+    "project_id": "insideout-8c405",
+    "storage_bucket": "insideout-8c405.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308593416369:android:92354b07880b445054aa90",
+        "android_client_info": {
+          "package_name": "com.lvher.insideout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQh0Rk4EkktjptrsVVpAnzDhnwNxjGqdw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
