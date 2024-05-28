@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,6 +18,9 @@ Widget Option(Text text){
 }
 
 class _MainPageState extends State<MainPage> {
+
+  List<bool> _todoChecked = [false, false, false, false, false];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,41 +35,97 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Row(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(30))),
-                  width: 60,
-                  height: 60,
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey[300],
+                  child: Icon(Icons.person, size: 40, color: Colors.white),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('어서오세요, 유저', style: TextStyle(fontSize: 20),),
-                    Text('오늘 상태')
+                    Text('유저님, 환영합니다!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text('💗 멘탈지수', style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               ],
             ),
-            SizedBox(height: 10,),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('To Do List', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            SizedBox(height: 10),
             Expanded(
-              child: ListView(
-                children: [
-                  Option(Text('내 멘탈지수, 관심 카테고리, 캘린더 - 완성도 표기')),
-                  Option(Text('To Do 리스트')),
-                  Option(Text('추천 컨텐츠')),
-                  Option(Text('알림창 : 설문 조사하기\n일정지수에 도달하면 화면에 플로팅 아이콘 혹은 모달창으로 뜨게하기'))
-                ],
+              child: ListView.builder(
+                itemCount: _todoChecked.length,
+                itemBuilder: (context, index) {
+                  return CheckboxListTile(
+                    title: Text('할 일 ${index + 1}'),
+                    value: _todoChecked[index],
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _todoChecked[index] = value!;
+                      });
+                    },
+                  );
+                },
               ),
-            )
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('ABOUT ME', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                InkWell(
+                  onTap: (){
+                    context.go("/checklist");
+                  },
+                  child: Column(
+                    children: [
+                      Text('체크리스트 성공률', style: TextStyle(color: Colors.grey)),
+                      SizedBox(height: 10),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            value: 0.7,
+                            strokeWidth: 10,
+                            backgroundColor: Colors.grey[300],
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                          Text('70', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  children: [
+                    Text('관심사', style: TextStyle(color: Colors.grey)),
+                    SizedBox(height: 10),
+                    Container(
+                      width: 70,
+                      height: 70,
+                      color: Colors.grey[300],
+                      child: Icon(Icons.mail, size: 40, color: Colors.grey),
+                    ),
+                    Text('공동체')
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),

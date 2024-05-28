@@ -11,12 +11,11 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   final List<Widget> _widgetOptions = <Widget>[
-    MainPage(),
     MentalDegree(),
-    Setting(),
     MainPage(),
+    Setting(),
   ];
 
   void _onItemTapped(int index) {
@@ -36,20 +35,16 @@ class _NavigationState extends State<Navigation> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.airplane_ticket_outlined),
+            label: '멘탈지수',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Mental',
+            icon: Icon(Icons.home_outlined),
+            label: '홈화면',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.person_outline),
+            label: '마이페이지',
           ),
         ],
         selectedItemColor: Colors.black,
