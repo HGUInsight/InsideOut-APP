@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 import 'mainpage.dart';
 
 class Setting extends StatefulWidget {
@@ -11,11 +12,12 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('마이페이지'),
+        title: const Text('마이페이지'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -74,7 +76,10 @@ class _SettingState extends State<Setting> {
               leading: Icon(Icons.logout),
               title: Text('로그아웃'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
+              onTap: () async{
+                await FirebaseAuth.instance.signOut();
+                await _googleSignIn.signOut();
+                context.go("/login");
                 // Log out
               },
             ),

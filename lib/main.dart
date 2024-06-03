@@ -30,8 +30,21 @@ void main() async {
   ));
 }
 
-Future<void> createUserData() async {
-  await FirebaseFirestore.instance.collection('user').add({});
+String docId = "";
+bool checked = false;
+
+Future<void> getUserData(uid) async {
+  debugPrint('uid : $uid');
+  await FirebaseFirestore.instance
+      .collection('user')
+      .where("uid", isEqualTo: uid)
+      .get()
+      .then((value) {
+        debugPrint('uid2 : ${value.docs[0].id}');
+    value.docs.isNotEmpty ? {docId = value.docs[0].id} : null;
+    value.docs.isNotEmpty ? checked = true : checked = false;
+    debugPrint("checked : $checked");
+  });
 }
 
 final _router = GoRouter(initialLocation: '/login', routes: [
@@ -40,7 +53,7 @@ final _router = GoRouter(initialLocation: '/login', routes: [
       builder: (context, state) =>
           Consumer<ApplicationState>(builder: (context, appState, _) {
             //debugPrint("data loading...");
-            return Navigation();
+            return const Navigation();
           }),
       routes: [
         GoRoute(path: 'checklist', builder: (_, state) => const CheckList()),
@@ -52,16 +65,12 @@ final _router = GoRouter(initialLocation: '/login', routes: [
           builder: (context, snapshot) {
             //debugPrint('state :'+snapshot.data!.uid);
             if (snapshot.hasData) {
-              return StreamBuilder(
-                  stream:
-                      FirebaseFirestore.instance.collection('user').snapshots(),
-                  builder: (context, userdt) {
-                    if (userdt.hasData) {
-                      return const MainPage();
-                    } else {
-                      return const SignUp();
-                    }
-                  });
+              getUserData(snapshot.data?.uid);
+              if (checked == true) {
+                return const Navigation();
+              } else {
+                return const SignUp();
+              }
             } else {
               return const LoginPage();
             }

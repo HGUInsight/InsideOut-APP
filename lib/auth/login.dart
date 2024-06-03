@@ -15,6 +15,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:insideout/signup/Signup.dart';
+import 'package:insideout/style.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -52,26 +54,17 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorStyle.bgColor1,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           children: <Widget>[
-            const SizedBox(height: 80.0),
-            Column(
-              children: <Widget>[
-                Image.asset('assets/diamond.png'),
-                const SizedBox(height: 16.0),
-                const Text('SHRINE'),
-              ],
-            ),
+            SizedBox(height: 100,),
+            Text('환영합니다!',style: MyTextStyles.titleTextStyle,),
             const SizedBox(height: 120.0),
             // TODO: Remove filled: true values (103)
-            ElevatedButton(onPressed: () {
-              signInWithGoogle();
-            }, child: Text('GOOGLE')),
-            ElevatedButton(onPressed: () {
-              signInAnonymous();
-            }, child: Text('Guest'))
+            submitButton('GOOGLE', signInWithGoogle)
+
           ],
         ),
       ),
