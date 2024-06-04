@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'mainpage.dart';
+import 'package:insideout/app_state.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -13,8 +15,10 @@ class Setting extends StatefulWidget {
 
 class _SettingState extends State<Setting> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<ApplicationState>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('마이페이지'),
@@ -27,24 +31,28 @@ class _SettingState extends State<Setting> {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  child: Icon(Icons.person, size: 40),
+                  child: Lottie.asset('assets/egg_ani.json'),
                 ),
-                SizedBox(width: 16,),
+                SizedBox(
+                  width: 16,
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '유저 이름',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      "${appState.user.name}님",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '센터이름',
+                      appState.user.center == 'none'
+                          ? "센터없음"
+                          : appState.user.center,
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
                 ),
-
               ],
             ),
             SizedBox(height: 32),
@@ -76,7 +84,7 @@ class _SettingState extends State<Setting> {
               leading: Icon(Icons.logout),
               title: Text('로그아웃'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () async{
+              onTap: () async {
                 await FirebaseAuth.instance.signOut();
                 await _googleSignIn.signOut();
                 context.go("/login");

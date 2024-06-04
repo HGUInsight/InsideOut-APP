@@ -1,46 +1,52 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Style{
+class Style {
   static ThemeData lightThemeData = themeData();
 
-  static ThemeData themeData(){
+  static ThemeData themeData() {
     final base = ThemeData.light();
     return base.copyWith(
       textTheme: _buildTextTheme(base.textTheme),
     );
   }
-  static TextTheme _buildTextTheme(TextTheme base){
+
+  static TextTheme _buildTextTheme(TextTheme base) {
     return base.copyWith(
-      titleLarge: GoogleFonts.robotoSlab(textStyle: base.titleLarge),
-      bodyMedium: GoogleFonts.nanumGothic(textStyle: base.bodyMedium)
-    );
+        titleLarge: GoogleFonts.robotoSlab(textStyle: base.titleLarge),
+        bodyMedium: GoogleFonts.nanumGothic(textStyle: base.bodyMedium));
   }
-
-
 }
 
 class MyTextStyles {
-  static const TextStyle titleTextStyle = TextStyle(
-    fontSize: 30,
-      fontWeight: FontWeight.bold
-    // Additional style options can be set here
-    // Example: fontWeight: FontWeight.bold, color: Colors.black
-  );
-  static const TextStyle buttonTextStyle = TextStyle(
-    color: Color(0xffFFFFFF)
-  );
-  static const TextStyle selectTextStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 15
-  );
-  static const TextStyle selectedTextStyle = TextStyle(
-      color: Color(0xffFFFFFF),
-      fontSize: 15
-  );
+  static const TextStyle titleTextStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold
+          // Additional style options can be set here
+          // Example: fontWeight: FontWeight.bold, color: Colors.black
+          );
+  static const TextStyle buttonTextStyle = TextStyle(color: Color(0xffFFFFFF));
+  static const TextStyle selectTextStyle =
+      TextStyle(color: Colors.black, fontSize: 15);
+  static const TextStyle selectedTextStyle =
+      TextStyle(color: Color(0xffFFFFFF), fontSize: 15);
+  static const TextStyle smallTitleTextStyle =
+      TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold);
 }
 
-class ColorStyle{
+class BoxDecorationStyle {
+  static BoxDecoration graphBox1 = BoxDecoration(
+      color: Color(0xffFFFFFF),
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      border: Border.all(width: 1, color: Colors.black));
+  static BoxDecoration graphBox2 = BoxDecoration(
+      color: Color(0xffFFFFFF),
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      border: Border.all(width: 0.5, color: Colors.grey));
+}
+
+class ColorStyle {
   static const Color mainColor1 = Color(0xff689BB0);
   static const Color mainColor2 = Color(0xffBCDDE1);
   static const Color mainColor3 = Color(0xffECF1F2);

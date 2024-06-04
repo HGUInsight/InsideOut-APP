@@ -23,8 +23,31 @@ class ApplicationState extends ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((event) {
       if (event != null) {
         uid = event.uid;
+
+        getUserData();
       }
     });
+
+    notifyListeners();
+  }
+
+  Future<void> getUserData() async {
+    FirebaseFirestore.instance
+        .collection('user')
+        .where("uid", isEqualTo: uid)
+        .snapshots()
+        .listen((event) {
+          if(event.docs.isNotEmpty){
+            debugPrint("${event.size}");
+            user.name = event.docs[0].data()['name'];
+            user.center = event.docs[0].data()['center'];
+          }
+          else{
+
+          }
+
+    });
+
     notifyListeners();
   }
 

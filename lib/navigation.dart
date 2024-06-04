@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:insideout/Setting.dart';
 import 'package:insideout/mainpage.dart';
 import 'package:insideout/mental_degree.dart';
+import 'package:insideout/style.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({super.key});
@@ -11,10 +12,10 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
-    MentalDegree(),
     MainPage(),
+    MentalDegree(),
     Setting(),
   ];
 
@@ -35,22 +36,22 @@ class _NavigationState extends State<Navigation> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.airplane_ticket_outlined),
-            label: '멘탈지수',
+            icon: Icon(Icons.home),
+            label: '홈화면',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: '홈화면',
+            icon: Icon(Icons.airplane_ticket_outlined),
+            label: '멘탈지수',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: '마이페이지',
           ),
         ],
-        selectedItemColor: Colors.black,
+        selectedItemColor: ColorStyle.mainColor1,
         unselectedItemColor: Colors.grey,
         currentIndex: _selectedIndex,
-        backgroundColor: Colors.white,
+        backgroundColor: ColorStyle.bgColor1,
         onTap: _onItemTapped,
       ),
     );

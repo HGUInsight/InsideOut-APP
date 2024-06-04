@@ -11,6 +11,8 @@ import 'package:insideout/signup/Signup.dart';
 import 'package:insideout/signup/Signup2.dart';
 import 'package:insideout/signup/signup1.dart';
 import 'package:insideout/signup/signup3.dart';
+import 'package:insideout/test/test_form.dart';
+import 'package:insideout/test/test_start.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'auth/login.dart';
@@ -40,10 +42,13 @@ Future<void> getUserData(uid) async {
       .where("uid", isEqualTo: uid)
       .get()
       .then((value) {
-        debugPrint('uid2 : ${value.docs[0].id}');
-    value.docs.isNotEmpty ? {docId = value.docs[0].id} : null;
-    value.docs.isNotEmpty ? checked = true : checked = false;
-    debugPrint("checked : $checked");
+        if(value.docs.isNotEmpty){
+          debugPrint('uid2 : ${value.docs[0].id}');
+          value.docs.isNotEmpty ? {docId = value.docs[0].id} : null;
+          value.docs.isNotEmpty ? checked = true : checked = false;
+          debugPrint("checked : $checked");
+        }
+
   });
 }
 
@@ -81,6 +86,12 @@ final _router = GoRouter(initialLocation: '/login', routes: [
         GoRoute(path: 'signup2', builder: (_, state) => const SignUpSecond()),
         GoRoute(path: 'signup3', builder: (_, state) => const SignupThird()),
       ]),
+  GoRoute(
+      path: "/test",
+      builder: (context, state) => const StartTest(),
+      routes: [
+        GoRoute(path: 'page', builder: (context, state) => const TestForm())
+      ])
 ]);
 
 class App extends StatelessWidget {

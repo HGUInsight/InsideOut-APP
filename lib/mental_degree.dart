@@ -1,50 +1,76 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:insideout/mainpage.dart';
+import 'package:go_router/go_router.dart';
+import 'package:insideout/signup/Signup.dart';
+import 'package:insideout/style.dart';
+
 class MentalDegree extends StatefulWidget {
   const MentalDegree({super.key});
 
   @override
   State<MentalDegree> createState() => _MentalDegreeState();
 }
-
+Widget mainButton(String text, Function() func) {
+  return SizedBox(
+    child: ElevatedButton(
+      onPressed: () {
+        debugPrint("function: $func");
+        func(); // 여기를 수정해서 func가 실행되도록 합니다.
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: ColorStyle.mainColor1,
+        minimumSize: Size(100, 50), // Width and height of the button
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // Rounded corners
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: ColorStyle.bgColor1,
+          fontSize: 18, // Adjust the font size as needed
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  );
+}
 class _MentalDegreeState extends State<MentalDegree> {
   bool isCheck = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('멘탈지수'),
-      ),
+      backgroundColor: ColorStyle.bgColor1,
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
-              color: Colors.grey[300],
               width: double.infinity,
-              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: ColorStyle.mainColor2,
+                borderRadius: BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+              ),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 60,),
                   Text(
                     '나의 멘탈지수는?',
-                    style: TextStyle(fontSize: 18),
+                    style: MyTextStyles.smallTitleTextStyle,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '100',
-                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Add your onPressed code here!
-
-                        },
-                        child: Text('설문조사버튼'),
-                      ),
+                      mainButton('설문조사버튼', () => context.go("/test")),
                     ],
                   ),
                 ],
@@ -78,7 +104,6 @@ class _MentalDegreeState extends State<MentalDegree> {
                           setState(() {
                             isCheck = value!;
                           });
-                          // Handle checkbox state change
                         },
                       ),
                       Text('조금 더 분발하세요'),
@@ -98,33 +123,37 @@ class MentalHealthChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecorationStyle.graphBox1,
       height: 200,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          barGroups: [
-            BarChartGroupData(x: 0, barRods: [
-              BarChartRodData(fromY: 0,toY: 10, color: Colors.green, ),
-              BarChartRodData(fromY: 0,toY: 8, color: Colors.orange, ),
-              BarChartRodData(fromY: 0,toY: 6, color: Colors.red, ),
-            ]),
-            BarChartGroupData(x: 5, barRods: [
-              BarChartRodData(fromY: 0,toY: 10, color: Colors.green, ),
-              BarChartRodData(fromY: 0,toY: 8, color: Colors.orange, ),
-              BarChartRodData(fromY: 0,toY: 6, color: Colors.red, ),
-            ]),
-            BarChartGroupData(x: 10, barRods: [
-              BarChartRodData(fromY: 0,toY: 10, color: Colors.green, ),
-              BarChartRodData(fromY: 0,toY: 8, color: Colors.orange, ),
-              BarChartRodData(fromY: 0,toY: 6, color: Colors.red, ),
-            ]),
-            BarChartGroupData(x: 15, barRods: [
-              BarChartRodData(fromY: 0,toY: 10, color: Colors.green, ),
-              BarChartRodData(fromY: 0,toY: 8, color: Colors.orange, ),
-              BarChartRodData(fromY: 0,toY: 6, color: Colors.red, ),
-            ]),
-            // Add more BarChartGroupData here
-          ],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            barGroups: [
+              BarChartGroupData(x: 0, barRods: [
+                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
+                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
+                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
+              ]),
+              BarChartGroupData(x: 5, barRods: [
+                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
+                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
+                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
+              ]),
+              BarChartGroupData(x: 10, barRods: [
+                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
+                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
+                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
+              ]),
+              BarChartGroupData(x: 15, barRods: [
+                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
+                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
+                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
+              ]),
+              // Add more BarChartGroupData here
+            ],
+          ),
         ),
       ),
     );
@@ -136,36 +165,40 @@ class DiligenceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 200,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          barGroups: [
-            BarChartGroupData(x: 0, barRods: [
-              BarChartRodData(fromY: 0, color: Colors.grey, toY: 20),
-              BarChartRodData(fromY: 0, color: Colors.grey[400]!, toY: 25),
-              BarChartRodData(fromY: 0, color: Colors.grey[600]!, toY: 22),
-              BarChartRodData(fromY: 0, color: Colors.grey[800]!, toY: 24),
-            ]),
-            BarChartGroupData(x: 5, barRods: [
-              BarChartRodData(fromY: 0, color: Colors.grey, toY: 20),
-              BarChartRodData(fromY: 0, color: Colors.grey[400]!, toY: 25),
-              BarChartRodData(fromY: 0, color: Colors.grey[600]!, toY: 22),
-              BarChartRodData(fromY: 0, color: Colors.grey[800]!, toY: 24),
-            ]),
-            BarChartGroupData(x: 10, barRods: [
-              BarChartRodData(fromY: 0, color: Colors.grey, toY: 20),
-              BarChartRodData(fromY: 0, color: Colors.grey[400]!, toY: 25),
-              BarChartRodData(fromY: 0, color: Colors.grey[600]!, toY: 22),
-              BarChartRodData(fromY: 0, color: Colors.grey[800]!, toY: 24),
-            ]),
-            BarChartGroupData(x: 15, barRods: [
-              BarChartRodData(fromY: 0, color: Colors.grey, toY: 20),
-              BarChartRodData(fromY: 0, color: Colors.grey[400]!, toY: 25),
-              BarChartRodData(fromY: 0, color: Colors.grey[600]!, toY: 22),
-              BarChartRodData(fromY: 0, color: Colors.grey[800]!, toY: 24),
-            ]),
-            // Add more BarChartGroupData here
-          ],
+      decoration: BoxDecorationStyle.graphBox2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            barGroups: [
+              BarChartGroupData(x: 0, barRods: [
+                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+              ]),
+              BarChartGroupData(x: 5, barRods: [
+                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+              ]),
+              BarChartGroupData(x: 10, barRods: [
+                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+              ]),
+              BarChartGroupData(x: 15, barRods: [
+                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+              ]),
+              // Add more BarChartGroupData here
+            ],
+          ),
         ),
       ),
     );
