@@ -51,6 +51,7 @@ class _CheckListState extends State<CheckList> {
                 lastDay: DateTime.utc(2090, 3, 14),
                 focusedDay: DateTime.now(),
                 calendarFormat: CalendarFormat.month,
+                onDaySelected: null,
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
                     color: Colors.blue,

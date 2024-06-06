@@ -13,6 +13,7 @@ import 'package:insideout/signup/signup1.dart';
 import 'package:insideout/signup/signup3.dart';
 import 'package:insideout/test/test_form.dart';
 import 'package:insideout/test/test_start.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'auth/login.dart';
@@ -20,13 +21,11 @@ import 'auth/login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeDateFormatting('ko_KR','');
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
     builder: ((context, child) =>
         Consumer<ApplicationState>(builder: (context, appState, _) {
-          //debugPrint("data loading...");
-          //appState.allProducts.clear();
-          //appState.fillProducts();
           return const App();
         })),
   ));
@@ -35,64 +34,80 @@ void main() async {
 String docId = "";
 bool checked = false;
 
-Future<void> getUserData(uid) async {
+Future<void> getUserData(String uid) async {
   debugPrint('uid : $uid');
   await FirebaseFirestore.instance
       .collection('user')
       .where("uid", isEqualTo: uid)
       .get()
       .then((value) {
-        if(value.docs.isNotEmpty){
-          debugPrint('uid2 : ${value.docs[0].id}');
-          value.docs.isNotEmpty ? {docId = value.docs[0].id} : null;
-          value.docs.isNotEmpty ? checked = true : checked = false;
-          debugPrint("checked : $checked");
-        }
-
+    if (value.docs.isNotEmpty) {
+      debugPrint('uid2 : ${value.docs[0].id}');
+      docId = value.docs[0].id;
+      checked = true;
+      debugPrint("checked : $checked");
+    } else {
+      checked = false;
+    }
   });
 }
 
-final _router = GoRouter(initialLocation: '/login', routes: [
-  GoRoute(
+final _router = GoRouter(
+  initialLocation: '/login',
+  routes: [
+    GoRoute(
       path: '/',
       builder: (context, state) =>
           Consumer<ApplicationState>(builder: (context, appState, _) {
-            //debugPrint("data loading...");
             return const Navigation();
           }),
       routes: [
         GoRoute(path: 'checklist', builder: (_, state) => const CheckList()),
-      ]),
-  GoRoute(
+      ],
+    ),
+    GoRoute(
       path: "/login",
       builder: (_, state) => StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            //debugPrint('state :'+snapshot.data!.uid);
-            if (snapshot.hasData) {
-              getUserData(snapshot.data?.uid);
-              if (checked == true) {
-                return const Navigation();
-              } else {
-                return const SignUp();
-              }
-            } else {
-              return const LoginPage();
-            }
-          }),
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return FutureBuilder(
+              future: getUserData(snapshot.data!.uid),
+              builder: (context, userDataSnapshot) {
+                if (userDataSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (userDataSnapshot.hasError) {
+                  return const Center(child: Text('Error loading user data'));
+                } else {
+                  if (checked) {
+                    return const Navigation();
+                  } else {
+                    return const SignUp();
+                  }
+                }
+              },
+            );
+          } else {
+            return const LoginPage();
+          }
+        },
+      ),
       routes: [
         GoRoute(path: 'signup', builder: (_, state) => const SignUp()),
         GoRoute(path: 'signup1', builder: (_, state) => const SignUpFirst()),
         GoRoute(path: 'signup2', builder: (_, state) => const SignUpSecond()),
         GoRoute(path: 'signup3', builder: (_, state) => const SignupThird()),
-      ]),
-  GoRoute(
+      ],
+    ),
+    GoRoute(
       path: "/test",
       builder: (context, state) => const StartTest(),
       routes: [
         GoRoute(path: 'page', builder: (context, state) => const TestForm())
-      ])
-]);
+      ],
+    ),
+  ],
+);
 
 class App extends StatelessWidget {
   const App({super.key});

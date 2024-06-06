@@ -8,6 +8,7 @@ class ApplicationState extends ChangeNotifier {
   UserData user =
       UserData("", "", "", "", "", "", DateTime.utc(1000), "", "", "", "");
   String uid = "";
+  List<int> testDataList = [];
 
   ApplicationState() {
     debugPrint('initializing...');
@@ -41,6 +42,7 @@ class ApplicationState extends ChangeNotifier {
             debugPrint("${event.size}");
             user.name = event.docs[0].data()['name'];
             user.center = event.docs[0].data()['center'];
+            user.interest = event.docs[0].data()['interest'];
           }
           else{
 
@@ -109,6 +111,11 @@ class ApplicationState extends ChangeNotifier {
       "severe": user.disable,
       "uid": uid
     });
+    notifyListeners();
+  }
+
+  Future<void> insertTestData(int idx, List<int?> testData)async{
+    FirebaseFirestore.instance.collection('result').doc(uid).collection("page$idx").add({ "choice":testData});
     notifyListeners();
   }
 }
