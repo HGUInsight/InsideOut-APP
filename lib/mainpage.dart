@@ -18,7 +18,7 @@ Widget emptyStat(Function func) {
   return Container(
     padding: EdgeInsets.all(16.0),
     decoration: BoxDecoration(
-      color: ColorStyle.mainColor2, // Background color of the container
+      color: ColorStyle.mainColor2,
       borderRadius: BorderRadius.circular(8.0),
       border: Border.all(color: ColorStyle.mainColor1, width: 1.0),
     ),
@@ -40,7 +40,7 @@ Widget emptyStat(Function func) {
             func();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: ColorStyle.mainColor1, // Background color
+            backgroundColor: ColorStyle.mainColor1,
             padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -56,19 +56,75 @@ Widget emptyStat(Function func) {
 class _MainPageState extends State<MainPage> {
   List<bool> _todoChecked = [];
   List<String> _todoTitles = [];
-  QuerySnapshot? querySnapshot; // Define querySnapshot at class level
+  QuerySnapshot? querySnapshot;
+  double _checklistSuccessRate = 0.0;
+  late Stream<QuerySnapshot> _todoStream;
 
   @override
   void initState() {
     super.initState();
     fetchTodoList();
+    setupTodoStream();
+  }
+
+  void setupTodoStream() {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+    var uid = appState.uid;
+
+    DateTime startOfDay = DateTime.now().toUtc().subtract(Duration(
+      hours: DateTime.now().hour,
+      minutes: DateTime.now().minute,
+      seconds: DateTime.now().second,
+      milliseconds: DateTime.now().millisecond,
+      microseconds: DateTime.now().microsecond,
+    ));
+    DateTime endOfDay = startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
+
+    _todoStream = FirebaseFirestore.instance
+        .collection('todolist')
+        .doc(uid)
+        .collection('todo1')
+        .where('datetime', isGreaterThanOrEqualTo: startOfDay)
+        .where('datetime', isLessThanOrEqualTo: endOfDay)
+        .snapshots();
+
+    _todoStream.listen((snapshot) {
+      querySnapshot = snapshot;
+      List<bool> checkedList = [];
+      List<String> titleList = [];
+
+      snapshot.docs.forEach((doc) {
+        checkedList.add(doc['done']);
+        titleList.add(doc['title']);
+      });
+
+      setState(() {
+        _todoChecked = checkedList;
+        _todoTitles = titleList;
+      });
+
+      calculateChecklistSuccessRate();
+    });
   }
 
   Future<void> fetchTodoList() async {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+    var uid = appState.uid;
+
+    DateTime startOfDay = DateTime.now().toUtc().subtract(Duration(
+        hours: DateTime.now().hour,
+        minutes: DateTime.now().minute,
+        seconds: DateTime.now().second,
+        milliseconds: DateTime.now().millisecond,
+        microseconds: DateTime.now().microsecond));
+    DateTime endOfDay = startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
+
     querySnapshot = await FirebaseFirestore.instance
         .collection('todolist')
-        .doc(Provider.of<ApplicationState>(context, listen: false).uid)
+        .doc(uid)
         .collection('todo1')
+        .where('datetime', isGreaterThanOrEqualTo: startOfDay)
+        .where('datetime', isLessThanOrEqualTo: endOfDay)
         .get();
 
     List<bool> checkedList = [];
@@ -83,6 +139,32 @@ class _MainPageState extends State<MainPage> {
       _todoChecked = checkedList;
       _todoTitles = titleList;
     });
+
+    calculateChecklistSuccessRate();
+  }
+
+  Future<void> calculateChecklistSuccessRate() async {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+    var uid = appState.uid;
+
+    DateTime now = DateTime.now();
+    DateTime startOfMonth = DateTime(now.year, now.month, 1).toUtc();
+    DateTime endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1)).toUtc();
+
+    QuerySnapshot monthlySnapshot = await FirebaseFirestore.instance
+        .collection('todolist')
+        .doc(uid)
+        .collection('todo1')
+        .where('datetime', isGreaterThanOrEqualTo: startOfMonth)
+        .where('datetime', isLessThanOrEqualTo: endOfMonth)
+        .get();
+
+    int totalTasks = monthlySnapshot.size;
+    int completedTasks = monthlySnapshot.docs.where((doc) => doc['done'] == true).length;
+
+    setState(() {
+      _checklistSuccessRate = totalTasks > 0 ? (completedTasks / totalTasks) : 0.0;
+    });
   }
 
   @override
@@ -94,19 +176,20 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: ColorStyle.bgColor1,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            DateFormat.yMMMMd('ko_KR').format(DateTime.now()),
-            style: TextStyle(color: Colors.grey),
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.calendar_month_rounded, color: ColorStyle.mainColor1,),
+              SizedBox(width: 10,),
+              Text(
+                DateFormat.yMMMMd('ko_KR').format(DateTime.now()),
+                style: TextStyle(color: ColorStyle.mainColor1),
+              ),
+            ],
           ),
         ),
         leadingWidth: 200,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.add_alert_sharp, color: Colors.grey),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -135,7 +218,7 @@ class _MainPageState extends State<MainPage> {
                         Icon(Icons.favorite, color: Colors.red),
                         Text(
                           ' 내 멘탈지수: 80',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(color: Colors.red),
                         ),
                       ],
                     ),
@@ -149,7 +232,7 @@ class _MainPageState extends State<MainPage> {
                 Container(
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyle.impactColor2, width: 2.0),
+                    border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
@@ -157,7 +240,7 @@ class _MainPageState extends State<MainPage> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                        color: ColorStyle.mainColor1),
                   ),
                 ),
               ],
@@ -168,27 +251,44 @@ class _MainPageState extends State<MainPage> {
                   ? ListView.builder(
                 itemCount: _todoChecked.length,
                 itemBuilder: (context, index) {
-                  return CheckboxListTile(
-                    title: Text(_todoTitles[index]),
-                    value: _todoChecked[index],
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _todoChecked[index] = value!;
-                        // Update Firestore
-                        FirebaseFirestore.instance
-                            .collection('todolist')
-                            .doc(Provider.of<ApplicationState>(context, listen: false).uid)
-                            .collection('todo1')
-                            .doc(querySnapshot?.docs[index].id)
-                            .update({'done': value});
-                      });
-                    },
-                    activeColor: Colors.blue,
-                    checkColor: Colors.white,
-                    secondary: _todoChecked[index]
-                        ? Icon(Icons.check_circle, color: Colors.blue)
-                        : Icon(Icons.radio_button_unchecked,
-                        color: Colors.grey),
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: ColorStyle.mainColor1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        _todoTitles[index],
+                        style: TextStyle(color: ColorStyle.mainColor1),
+                      ),
+                      leading: Icon(
+                        _todoChecked[index]
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: _todoChecked[index] ? Colors.blue : Colors.grey,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _todoChecked[index] = !_todoChecked[index];
+                          FirebaseFirestore.instance
+                              .collection('todolist')
+                              .doc(Provider.of<ApplicationState>(context, listen: false).uid)
+                              .collection('todo1')
+                              .doc(querySnapshot?.docs[index].id)
+                              .update({'done': _todoChecked[index]});
+                        });
+                      },
+                    ),
                   );
                 },
               )
@@ -210,54 +310,87 @@ class _MainPageState extends State<MainPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                InkWell(
-                  onTap: () {
-                    context.go("/checklist");
-                  },
-                  child: Column(
-                    children: [
-                      Text('체크리스트 성공률',
-                          style: TextStyle(color: Colors.grey)),
-                      SizedBox(height: 10),
-                      Stack(
-                        alignment: Alignment.center,
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: ColorStyle.bgColor2,
+                      border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        context.go("/checklist");
+                      },
+                      child: Column(
                         children: [
-                          CircularProgressIndicator(
-                            value: 0.7,
-                            strokeWidth: 10,
-                            backgroundColor: Colors.grey[300],
-                            valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.blue),
+                          Text('체크리스트 성공률', style: TextStyle(color: Colors.grey)),
+                          SizedBox(height: 10),
+                          Container(
+                            width: 70, // 아이콘 크기와 동일한 값으로 수정
+                            height: 70, // 아이콘 크기와 동일한 값으로 수정
+                            decoration: BoxDecoration(
+                              color: ColorStyle.bgColor2,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: _checklistSuccessRate,
+                                  strokeWidth: 7,
+                                  backgroundColor: Colors.grey[200],
+                                  valueColor: AlwaysStoppedAnimation<Color>(ColorStyle.mainColor1),
+                                ),
+                                Text(
+                                  '${(_checklistSuccessRate * 100).toInt()}',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorStyle.mainColor1,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(
-                            '70',
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                          ),
+                          SizedBox(height: 10),
+                          Text('성공률', style: TextStyle(color: ColorStyle.mainColor1)),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-                Column(
-                  children: [
-                    Text('관심사', style: TextStyle(color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(35),
-                      ),
-                      child: Icon(Icons.group, size: 40, color: Colors.grey),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: ColorStyle.bgColor2,
+                      border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                    SizedBox(height: 10),
-                    Text(appState.user.interest,
-                        style: TextStyle(color: Colors.black)),
-                  ],
+                    child: Column(
+                      children: [
+                        Text('관심사', style: TextStyle(color: Colors.grey)),
+                        SizedBox(height: 10),
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: ColorStyle.bgColor2,
+                            borderRadius: BorderRadius.circular(35),
+                          ),
+                          child: Icon(
+                            Icons.group,
+                            size: 40,
+                            color: ColorStyle.mainColor1,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(appState.user.interest, style: TextStyle(color: Colors.black)),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),

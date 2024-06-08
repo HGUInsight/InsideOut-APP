@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../app_state.dart';
-import '../signup/Signup.dart';
 import '../style.dart';
 
 class TestForm extends StatefulWidget {
@@ -18,6 +17,8 @@ class _TestFormState extends State<TestForm> {
   List<int?> selectedOptions = [];
   int pageNum = 1;
   int totalCount = 0;
+  bool showValidationError = false;
+  QuerySnapshot? querySnapshot;
 
   Future<int> getTestCount() async {
     try {
@@ -36,19 +37,167 @@ class _TestFormState extends State<TestForm> {
     }
   }
 
+  Future<void> loadPreviousAnswers() async {
+    var appState = context.read<ApplicationState>();
+    var userTestRef = FirebaseFirestore.instance
+        .collection('userTestData')
+        .doc(appState.user.id)
+        .collection('page$pageNum');
+
+    var snapshot = await userTestRef.get();
+    if (snapshot.docs.isNotEmpty) {
+      setState(() {
+        for (var doc in snapshot.docs) {
+          var index = querySnapshot!.docs.indexWhere((d) => d.id == doc.id);
+          if (index != -1) {
+            selectedOptions[index] = doc['selectedOption'];
+          }
+        }
+      });
+    }
+  }
+
+  void showExitWarningDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ColorStyle.bgColor1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '정말 그만 두시겠습니까?',
+                style: TextStyle(
+                    color: ColorStyle.impactColor3,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorStyle.mainColor2,
+                    ),
+                    child: Text(
+                      '취소',
+                      style: TextStyle(color: ColorStyle.mainColor1),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.go('/test');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorStyle.mainColor1,
+                    ),
+                    child: Text(
+                      '예',
+                      style: TextStyle(color: ColorStyle.mainColor2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSubmissionModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ColorStyle.bgColor1,
+          title: Text(
+            '유저님의 멘탈지수는',
+            style: TextStyle(color: ColorStyle.mainColor1),
+          ),
+          content: Text(
+            '100',
+            style: TextStyle(color: ColorStyle.mainColor1),
+          ),
+          actions: [
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  context.go('/');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorStyle.mainColor1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: Text(
+                  '확인',
+                  style: TextStyle(color: ColorStyle.bgColor1),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> submitData() async {
+    var appState = context.read<ApplicationState>();
+    var batch = FirebaseFirestore.instance.batch();
+    var userTestRef = FirebaseFirestore.instance
+        .collection('userTestData')
+        .doc(appState.user.id);
+
+    for (int i = 0; i < selectedOptions.length; i++) {
+      if (selectedOptions[i] != null) {
+        var questionDoc = querySnapshot?.docs[i];
+        if (questionDoc != null) {
+          var userTestQuestionRef =
+          userTestRef.collection('page$pageNum').doc(questionDoc.id);
+          batch.set(
+            userTestQuestionRef,
+            {
+              'pageNum': pageNum,
+              'selectedOption': selectedOptions[i],
+            },
+            SetOptions(merge: true),
+          );
+        }
+      }
+    }
+
+    await batch.commit();
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<ApplicationState>();
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: ColorStyle.bgColor1,
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: ColorStyle.bgColor1,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.grey),
           onPressed: () {
-            // Close the screen
-            context.go('/test');
+            showExitWarningDialog(context);
           },
         ),
       ),
@@ -77,27 +226,36 @@ class _TestFormState extends State<TestForm> {
                   } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Center(child: Text('No data available'));
                   } else {
+                    querySnapshot = snapshot.data;
                     var docs = snapshot.data!.docs;
                     if (selectedOptions.length != docs.length) {
-                      selectedOptions = List<int?>.filled(docs.length,
-                          null); // Initialize selectedOptions with null if not already done
+                      selectedOptions =
+                      List<int?>.filled(docs.length, null);
+                      loadPreviousAnswers(); // Load previous answers here
                     }
                     return Column(
                       children: [
                         LinearProgressIndicator(
                           value: pageNum / totalCount,
-                          // Set the progress value as needed
                           backgroundColor: Colors.grey[300],
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.blueGrey),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              ColorStyle.mainColor1),
                         ),
                         SizedBox(height: 16),
                         Text(
                           '※ 아래의 문항을 잘 살펴보고 자신에게 해당되는 곳에 체크해 보세요',
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.grey[700]),
+                          style: TextStyle(
+                              fontSize: 14, color: ColorStyle.mainColor1),
                         ),
                         SizedBox(height: 16),
+                        if (showValidationError)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              '모든 문항을 체크해주세요.',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
                         Expanded(
                           child: ListView.builder(
                             itemCount: docs.length,
@@ -124,38 +282,44 @@ class _TestFormState extends State<TestForm> {
                           ),
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _navigationButton('이전', () {
-                              // Handle previous button action
-                              if (pageNum > 1) {
-                                setState(() {
-                                  pageNum--;
-                                  selectedOptions =
-                                      []; // Clear selectedOptions when changing page
-                                });
-                              }
-                            }),
+                            if (pageNum > 1) // Only show if pageNum > 1
+                              _navigationButton('이전', () {
+                                if (pageNum > 1) {
+                                  setState(() {
+                                    pageNum--;
+                                    selectedOptions = [];
+                                    showValidationError = false;
+                                  });
+                                }
+                              }, Colors.white, ColorStyle.mainColor1),
+                            if (pageNum > 1) SizedBox(width: 8),
+                            Spacer(), // Pushes the 다음 button to the right
                             _navigationButton(
                               pageNum / totalCount == 1 ? '제출' : '다음',
-                              () {
-                                // Handle next button action
-                                if (pageNum / totalCount == 1) {
-                                  appState.insertTestData(
-                                      pageNum, selectedOptions);
-                                  context.go('/');
+                                  () {
+                                if (selectedOptions.contains(null)) {
+                                  setState(() {
+                                    showValidationError = true;
+                                  });
                                 } else {
-                                  if (pageNum < totalCount) {
-                                    appState.insertTestData(
-                                        pageNum, selectedOptions);
-                                    setState(() {
-                                      pageNum++;
-                                      selectedOptions =
-                                          []; // Clear selectedOptions when changing page
-                                    });
-                                  }
+                                  showValidationError = false;
+                                  submitData().then((_) {
+                                    if (pageNum / totalCount == 1) {
+                                      showSubmissionModal(context);
+                                    } else {
+                                      if (pageNum < totalCount) {
+                                        setState(() {
+                                          pageNum++;
+                                          selectedOptions = [];
+                                        });
+                                      }
+                                    }
+                                  });
                                 }
                               },
+                              ColorStyle.mainColor1,
+                              ColorStyle.bgColor2,
                             ),
                           ],
                         ),
@@ -178,7 +342,12 @@ class _TestFormState extends State<TestForm> {
     required ValueChanged<int?> onChanged,
   }) {
     return Card(
+      color: ColorStyle.bgColor1,
       margin: EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: ColorStyle.mainColor1, width: 1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -186,16 +355,16 @@ class _TestFormState extends State<TestForm> {
           children: [
             Text(
               question,
-              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+              style: TextStyle(fontSize: 18, color: ColorStyle.mainColor1),
             ),
             SizedBox(height: 16),
             for (int i = 0; i < options.length; i++)
               RadioListTile<int>(
                 value: i,
                 groupValue: selectedOption,
-                title: Text(options[i]),
+                title: Text(options[i], style: TextStyle(color: ColorStyle.mainColor1)),
                 onChanged: onChanged,
-                activeColor: Colors.blueGrey,
+                activeColor: ColorStyle.mainColor1,
               ),
           ],
         ),
@@ -203,19 +372,21 @@ class _TestFormState extends State<TestForm> {
     );
   }
 
-  Widget _navigationButton(String text, VoidCallback onPressed) {
+  Widget _navigationButton(
+      String text, VoidCallback onPressed, Color backgroundColor, Color textColor) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: backgroundColor,
         minimumSize: Size(100, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: ColorStyle.mainColor1, width: 1),
         ),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 18, color: Colors.white),
+        style: TextStyle(fontSize: 18, color: textColor),
       ),
     );
   }

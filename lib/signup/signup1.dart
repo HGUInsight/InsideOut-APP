@@ -15,6 +15,9 @@ class SignUpFirst extends StatefulWidget {
 class _SignUpFirstState extends State<SignUpFirst> {
   bool isChecked = false;
   bool notChecked = false;
+  bool _checkboxError = false;
+  bool _centerError = false;
+  bool _dateError = false;
   String? selectedCenter;
   DateTime? selectedDate;
   final List<String> centers = [
@@ -25,26 +28,26 @@ class _SignUpFirstState extends State<SignUpFirst> {
     '센터 5',
     '센터 6',
   ];
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    //Provider.of<ApplicationState>(context, listen: false).showUserData();
-  }
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void submit() {
-    if (isChecked == true) {
-      Provider.of<ApplicationState>(context, listen: false)
-          .setData2(selectedCenter, selectedDate);
+    setState(() {
+      _checkboxError = !isChecked && !notChecked;
+      _centerError = isChecked && (selectedCenter == null || selectedCenter!.isEmpty);
+      _dateError = isChecked && selectedDate == null;
+    });
+
+    if (_formKey.currentState!.validate() && !_checkboxError && !_centerError && !_dateError) {
+      if (isChecked) {
+        Provider.of<ApplicationState>(context, listen: false)
+            .setData2(selectedCenter, selectedDate);
+      } else {
+        Provider.of<ApplicationState>(context, listen: false)
+            .setData2("none", DateTime(1000));
+      }
       Provider.of<ApplicationState>(context, listen: false).showUserData();
-    } else {
-      Provider.of<ApplicationState>(context, listen: false)
-          .setData2("none", DateTime(1000));
-      Provider.of<ApplicationState>(context, listen: false).showUserData();
-      // Handle the '아니요' case if needed
+      context.go("/login/signup2");
     }
-    // 다음 버튼 누를 때의 동작
-    context.go("/login/signup2");
   }
 
   Widget backBtn(Function onPressed) {
@@ -96,92 +99,135 @@ class _SignUpFirstState extends State<SignUpFirst> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Text(
-                  "노숙인 센터에\n거주 중이신가요?",
-                  style: MyTextStyles.titleTextStyle,
-                ),
-              ),
-              SizedBox(height: 20),
-              CheckboxListTile(
-                title: Text('네'),
-                value: isChecked,
-                controlAffinity: ListTileControlAffinity.leading,
-                activeColor: ColorStyle.mainColor1,
-                onChanged: (value) {
-                  setState(() {
-                    isChecked = value ?? false;
-                    notChecked = false;
-                  });
-                },
-              ),
-              if (isChecked) ...[
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: '센터 선택',
-                    border: OutlineInputBorder(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    "노숙인 센터에\n거주 중이신가요?",
+                    style: MyTextStyles.titleTextStyle,
                   ),
-                  items: centers.map((center) {
-                    return DropdownMenuItem<String>(
-                      value: center,
-                      child: Text(center),
-                    );
-                  }).toList(),
+                ),
+                SizedBox(height: 20),
+                CheckboxListTile(
+                  title: Text('네'),
+                  value: isChecked,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: ColorStyle.mainColor1,
                   onChanged: (value) {
                     setState(() {
-                      selectedCenter = value;
+                      isChecked = value ?? false;
+                      notChecked = false;
+                      _checkboxError = false;
                     });
                   },
                 ),
-                SizedBox(height: 16),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: '입소일',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today),
+                if (_checkboxError)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                    child: Text(
+                      '센터 거주 여부를 선택하세요.',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-                    if (pickedDate != null) {
+                if (isChecked) ...[
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: '센터 선택',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: centers.map((center) {
+                      return DropdownMenuItem<String>(
+                        value: center,
+                        child: Text(center),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
                       setState(() {
-                        selectedDate = pickedDate;
+                        selectedCenter = value;
+                        _centerError = false;
                       });
-                    }
-                  },
-                  controller: TextEditingController(
-                    text: selectedDate != null
-                        ? '${selectedDate!.month.toString().padLeft(2, '0')} / ${selectedDate!.day.toString().padLeft(2, '0')} / ${selectedDate!.year}'
-                        : '',
+                    },
+                    validator: (value) {
+                      if (isChecked && (value == null || value.isEmpty)) {
+                        return '센터를 선택하세요.';
+                      }
+                      return null;
+                    },
                   ),
+                  if (_centerError)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                      child: Text(
+                        '센터를 선택하세요.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: '입소일',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                          _dateError = false;
+                        });
+                      }
+                    },
+                    controller: TextEditingController(
+                      text: selectedDate != null
+                          ? '${selectedDate!.month.toString().padLeft(2, '0')} / ${selectedDate!.day.toString().padLeft(2, '0')} / ${selectedDate!.year}'
+                          : '',
+                    ),
+                    validator: (value) {
+                      if (isChecked && (selectedDate == null)) {
+                        return '입소일을 선택하세요.';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (_dateError)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                      child: Text(
+                        '입소일을 선택하세요.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+                SizedBox(height: 16),
+                CheckboxListTile(
+                  title: Text('아니요'),
+                  activeColor: ColorStyle.mainColor1,
+                  value: notChecked,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  onChanged: (value) {
+                    setState(() {
+                      notChecked = value ?? true;
+                      isChecked = false;
+                      _checkboxError = false;
+                    });
+                  },
+                ),
+                SizedBox(height: 20),
+                Center(
+                  child: submitButton('다음', submit),
                 ),
               ],
-              SizedBox(height: 16),
-              CheckboxListTile(
-                title: Text('아니요'),
-                activeColor: ColorStyle.mainColor1,
-                value: notChecked,
-                controlAffinity: ListTileControlAffinity.leading,
-                onChanged: (value) {
-                  setState(() {
-                    notChecked = value ?? true;
-                    isChecked = false;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: submitButton('다음', submit),
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -3,9 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../app_state.dart';
-import '../auth/user.dart';
 import '../style.dart';
-import 'Signup.dart';
 
 class SignUpSecond extends StatefulWidget {
   const SignUpSecond({super.key});
@@ -16,6 +14,8 @@ class SignUpSecond extends StatefulWidget {
 
 class _SignUpSecondState extends State<SignUpSecond> {
   bool hasDisability = false;
+  bool _checkboxError = false;
+  bool _typeError = false;
   String severity = '중증';
   String? disabilityType;
   List<String> disabilityTypes = [
@@ -30,15 +30,60 @@ class _SignUpSecondState extends State<SignUpSecond> {
 
   void submit() {
     if (hasDisability) {
-      Provider.of<ApplicationState>(context, listen: false)
-          .setData3(disabilityType, severity);
-      Provider.of<ApplicationState>(context, listen: false).showUserData();
+      _typeError = disabilityType == null || disabilityType!.isEmpty;
     } else {
-      Provider.of<ApplicationState>(context, listen: false)
-          .setData3("none", "none");
-      Provider.of<ApplicationState>(context, listen: false).showUserData();
+      _typeError = false;
     }
-    context.go('/login/signup3');
+
+    if (!_typeError) {
+      if (hasDisability) {
+        Provider.of<ApplicationState>(context, listen: false)
+            .setData3(disabilityType, severity);
+      } else {
+        Provider.of<ApplicationState>(context, listen: false)
+            .setData3("none", "none");
+      }
+      Provider.of<ApplicationState>(context, listen: false).showUserData();
+      context.go('/login/signup3');
+    }
+
+    setState(() {
+      _checkboxError = false;
+    });
+  }
+
+  Widget backBtn(Function onPressed) {
+    return CircleAvatar(
+      backgroundColor: ColorStyle.mainColor1,
+      child: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+          color: ColorStyle.bgColor2,
+        ),
+        onPressed: onPressed as void Function()?,
+      ),
+    );
+  }
+
+  Widget submitButton(String text, Function func) {
+    return ElevatedButton(
+      onPressed: () => func(),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: ColorStyle.mainColor1,
+        minimumSize: const Size(200, 50), // Width and height of the button
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Rounded corners
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: ColorStyle.bgColor1,
+          fontSize: 18, // Adjust the font size as needed
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 
   @override
@@ -46,13 +91,14 @@ class _SignUpSecondState extends State<SignUpSecond> {
     return Scaffold(
       backgroundColor: ColorStyle.bgColor1,
       appBar: AppBar(
-          leadingWidth: 100,
-          backgroundColor: ColorStyle.bgColor1,
-          title: Text('장애 여부'),
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: backBtn(() => context.go("/login/signup1")),
-          )),
+        leadingWidth: 100,
+        backgroundColor: ColorStyle.bgColor1,
+        title: Text('장애 여부'),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: backBtn(() => context.go("/login/signup1")),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
@@ -68,6 +114,7 @@ class _SignUpSecondState extends State<SignUpSecond> {
                     onChanged: (bool? value) {
                       setState(() {
                         hasDisability = value ?? false;
+                        _checkboxError = false;
                       });
                     },
                   ),
@@ -81,12 +128,21 @@ class _SignUpSecondState extends State<SignUpSecond> {
                     onChanged: (bool? value) {
                       setState(() {
                         hasDisability = !(value ?? true);
+                        _checkboxError = false;
                       });
                     },
                   ),
                 ),
               ],
             ),
+            if (_checkboxError)
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                child: Text(
+                  '장애 여부를 선택하세요.',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             SizedBox(height: 16.0),
             if (hasDisability) ...[
               Row(
@@ -125,12 +181,13 @@ class _SignUpSecondState extends State<SignUpSecond> {
               ),
               SizedBox(height: 16.0),
               Text('유형'),
-              DropdownButton<String>(
+              DropdownButtonFormField<String>(
                 value: disabilityType,
                 hint: const Text('유형을 선택하세요'),
                 onChanged: (String? newValue) {
                   setState(() {
                     disabilityType = newValue;
+                    _typeError = false;
                   });
                 },
                 items: disabilityTypes
@@ -140,7 +197,21 @@ class _SignUpSecondState extends State<SignUpSecond> {
                     child: Text(value),
                   );
                 }).toList(),
+                validator: (value) {
+                  if (hasDisability && (value == null || value.isEmpty)) {
+                    return '유형을 선택하세요.';
+                  }
+                  return null;
+                },
               ),
+              if (_typeError)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                  child: Text(
+                    '유형을 선택하세요.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               SizedBox(height: 32.0),
             ],
             submitButton('다음', submit)

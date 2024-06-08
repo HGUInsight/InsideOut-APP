@@ -48,6 +48,16 @@ dependencies:
   google_sign_in: ^6.2.1
   lottie: ^3.1.2
 
+flutter_native_splash:
+  color: "#B3E5FC" # Background color
+  image: assets/smile.png # Path to your splash screen image
+  android: true
+  ios: true
+  web: false
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
+  fullscreen: true
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -77,6 +87,7 @@ flutter:
     - assets/logo.png
     - assets/egg1.png
     - assets/egg_ani.json
+    - assets/smile.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

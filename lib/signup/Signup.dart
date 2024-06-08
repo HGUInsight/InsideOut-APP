@@ -33,10 +33,7 @@ Widget backBtn(Function() func) {
 Widget submitButton(String text, Function() func) {
   return SizedBox(
     child: ElevatedButton(
-      onPressed: () {
-        debugPrint("function: $func");
-        func(); // 여기를 수정해서 func가 실행되도록 합니다.
-      },
+      onPressed: func,
       style: ElevatedButton.styleFrom(
         backgroundColor: ColorStyle.mainColor1,
         minimumSize: Size(200, 50), // Width and height of the button
@@ -72,13 +69,14 @@ class _SignUpState extends State<SignUp> {
     _dateController.text = "02 / 10 / 2003";
   }
 
-  Widget CustomTextFormField(
-      {required TextEditingController controller,
-      required String labelText,
-      bool? obscureText,
-      Widget? suffixIcon,
-      TextInputType? keyboardType,
-      bool? readOnly}) {
+  Widget CustomTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    bool? obscureText,
+    Widget? suffixIcon,
+    TextInputType? keyboardType,
+    bool? readOnly,
+  }) {
     readOnly ??= false;
     obscureText ??= false;
     return Column(
@@ -95,34 +93,46 @@ class _SignUpState extends State<SignUp> {
               borderRadius: BorderRadius.circular(8.0),
             ),
             contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
             suffixIcon: suffixIcon,
           ),
           keyboardType: keyboardType,
           readOnly: readOnly,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '이 필드를 입력하세요';
+            }
+            return null;
+          },
         ),
       ],
     );
   }
 
   Future<void> submit() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _gender.isNotEmpty) {
       debugPrint("empty");
       // Process data
-    }
-    var name = nameController.text;
-    var gender = _gender;
-    var enterDT = _dateController.text;
-    var phone = phoneController.text;
-    var pwd = pwdController.text;
-    var id = idController.text;
-    debugPrint("Name: $name, Gender: $gender, Enter Date: $enterDT, Phone: $phone, Password: $pwd, ID: $id");
-    Provider.of<ApplicationState>(context, listen: false).setData1(id, name, pwd, phone, enterDT, gender);
-    //Provider.of<ApplicationState>(context, listen: false).insertUser1(id,name,phone,pwd,enterDT,gender);
+      var name = nameController.text;
+      var gender = _gender;
+      var enterDT = _dateController.text;
+      var phone = phoneController.text;
+      var pwd = pwdController.text;
+      var id = idController.text;
+      debugPrint("Name: $name, Gender: $gender, Enter Date: $enterDT, Phone: $phone, Password: $pwd, ID: $id");
+      Provider.of<ApplicationState>(context, listen: false).setData1(id, name, pwd, phone, enterDT, gender);
+      //Provider.of<ApplicationState>(context, listen: false).insertUser1(id,name,phone,pwd,enterDT,gender);
 
-    Provider.of<ApplicationState>(context, listen: false).showUserData();
-    context.go("/login/signup1");
+      Provider.of<ApplicationState>(context, listen: false).showUserData();
+      context.go("/login/signup1");
+    } else {
+      setState(() {
+        _genderError = true;
+      });
+    }
   }
+
+  bool _genderError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +142,9 @@ class _SignUpState extends State<SignUp> {
         leadingWidth: 100,
         backgroundColor: ColorStyle.bgColor1,
         leading: Padding(
-            padding: const EdgeInsets.all(8.0), child: backBtn(() => null)),
+          padding: const EdgeInsets.all(8.0),
+          child: backBtn(() => Navigator.of(context).pop()),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -178,7 +190,7 @@ class _SignUpState extends State<SignUp> {
                       if (pickedDate != null) {
                         setState(() {
                           _dateController.text =
-                              "${pickedDate.month.toString().padLeft(2, '0')} / ${pickedDate.day.toString().padLeft(2, '0')} / ${pickedDate.year}";
+                          "${pickedDate.month.toString().padLeft(2, '0')} / ${pickedDate.day.toString().padLeft(2, '0')} / ${pickedDate.year}";
                         });
                       }
                     },
@@ -189,6 +201,14 @@ class _SignUpState extends State<SignUp> {
                   padding: const EdgeInsets.only(top: 16.0),
                   child: Text('성별'),
                 ),
+                if (_genderError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      '성별을 선택하세요',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
                 Row(
                   children: [
                     Expanded(
@@ -201,6 +221,7 @@ class _SignUpState extends State<SignUp> {
                           onChanged: (String? value) {
                             setState(() {
                               _gender = value!;
+                              _genderError = false;
                             });
                           },
                         ),
@@ -216,6 +237,7 @@ class _SignUpState extends State<SignUp> {
                           onChanged: (String? value) {
                             setState(() {
                               _gender = value!;
+                              _genderError = false;
                             });
                           },
                         ),
@@ -226,7 +248,7 @@ class _SignUpState extends State<SignUp> {
                 SizedBox(
                   height: 20,
                 ),
-                submitButton('다음', submit), // 여기를 수정해서 함수가 호출되도록 함
+                submitButton('다음', submit),
               ],
             ),
           ),
