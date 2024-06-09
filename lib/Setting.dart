@@ -65,6 +65,15 @@ class _SettingState extends State<Setting> {
               },
             ),
             ListTile(
+              leading: Icon(Icons.document_scanner),
+              title: Text('텍스트 인식'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                context.go('/textscan');
+                // Navigate to account management
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.home),
               title: Text('센터'),
               trailing: Icon(Icons.arrow_forward_ios),

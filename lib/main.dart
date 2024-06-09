@@ -17,6 +17,7 @@ import 'package:insideout/signup/signup1.dart';
 import 'package:insideout/signup/signup3.dart';
 import 'package:insideout/test/test_form.dart';
 import 'package:insideout/test/test_start.dart';
+import 'package:insideout/text_scan.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
@@ -76,6 +77,7 @@ final _router = GoRouter(
       routes: [
         GoRoute(path: 'checklist', builder: (_, state) => const CheckList()),
         GoRoute(path: 'map', builder: (_, state) => const NaverMapApp()),
+        GoRoute(path: 'textscan', builder: (_, state) => const TextScan()),
       ],
     ),
     GoRoute(
