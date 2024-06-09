@@ -69,6 +69,7 @@ class _SettingState extends State<Setting> {
               title: Text('센터'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
+                context.go("/map");
                 // Navigate to center
               },
             ),

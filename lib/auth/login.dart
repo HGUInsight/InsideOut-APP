@@ -1,20 +1,8 @@
-// Copyright 2018-present the Flutter authors. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:insideout/mainpage.dart';
 import 'package:insideout/signup/Signup.dart';
 import 'package:insideout/style.dart';
 
@@ -26,29 +14,65 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _pwdController = TextEditingController();
+  bool _isObscure = true;
+
   Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  Future<UserCredential> signInAnonymous() async {
+  Future<void> signInWithIdAndPassword() async {
+    final id = _idController.text;
+    final pwd = _pwdController.text;
 
-    final userCredential =
-    await FirebaseAuth.instance.signInAnonymously();
-    print("Signed in with temporary account.");
-    return userCredential;
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('user')
+          .where('id', isEqualTo: id)
+          .where('pwd', isEqualTo: pwd)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final credential = EmailAuthProvider.credential(
+          email: id, // Assuming 'id' is the email for this example
+          password: pwd,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        print("Signed in successfully.");
+      } else {
+        _showErrorDialog('존재하지 않는 아이디입니다.');
+      }
+    } catch (e) {
+      _showErrorDialog('로그인 중 오류가 발생했습니다.');
+      print(e);
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('로그인 실패'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -59,12 +83,57 @@ class _LoginPageState extends State<LoginPage> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           children: <Widget>[
-            SizedBox(height: 100,),
-            Text('환영합니다!',style: MyTextStyles.titleTextStyle,),
-            const SizedBox(height: 120.0),
-            // TODO: Remove filled: true values (103)
-            submitButton('GOOGLE', signInWithGoogle)
-
+            SizedBox(height: 100),
+            Text('환영합니다!', style: MyTextStyles.titleTextStyle),
+            Text('아직 회원이 아니신가요?', style: MyTextStyles.subtitleTextStyle),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _idController,
+              decoration: InputDecoration(
+                labelText: '아이디',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _pwdController,
+              obscureText: _isObscure,
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  },
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  // Handle forgot password
+                },
+                child: Text('비밀번호를 잊어버리셨습니까?',style: MyTextStyles.miniTextStyle),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            submitButton('로그인', signInWithIdAndPassword),
+            SizedBox(height: 8.0),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+              },
+              child: Text('회원가입',style: MyTextStyles.subtitleTextStyle,),
+            ),
+            SizedBox(height: 120.0),
+            submitButton('GOOGLE', signInWithGoogle),
           ],
         ),
       ),

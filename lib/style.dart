@@ -21,11 +21,23 @@ class Style {
 }
 
 class MyTextStyles {
+  static const TextStyle miniTextStyle =
+  TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
+      color: ColorStyle.mainColor1
+    // Additional style options can be set here
+    // Example: fontWeight: FontWeight.bold, color: Colors.black
+  );
   static const TextStyle titleTextStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold
           // Additional style options can be set here
           // Example: fontWeight: FontWeight.bold, color: Colors.black
           );
+  static const TextStyle subtitleTextStyle =
+  TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+    color: ColorStyle.mainColor1
+    // Additional style options can be set here
+    // Example: fontWeight: FontWeight.bold, color: Colors.black
+  );
   static const TextStyle buttonTextStyle = TextStyle(color: Color(0xffFFFFFF));
   static const TextStyle selectTextStyle =
       TextStyle(color: Colors.black, fontSize: 15);

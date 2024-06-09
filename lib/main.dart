@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insideout/checklist.dart';
 import 'package:insideout/firebase_options.dart';
 import 'package:insideout/mainpage.dart';
+import 'package:insideout/navermap.dart';
 import 'package:insideout/navigation.dart';
 import 'package:insideout/signup/Signup.dart';
 import 'package:insideout/signup/Signup2.dart';
@@ -22,6 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('ko_KR','');
+  await _initializeMap();
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
     builder: ((context, child) =>
@@ -29,6 +34,13 @@ void main() async {
           return const App();
         })),
   ));
+}
+
+Future<void> _initializeMap() async{
+  await NaverMapSdk.instance.initialize(
+    clientId: '9j4sfz4zz8',
+    onAuthFailed: (e) => log("네이버맵 인증오류: $e", name: "onAuthFailed")
+  );
 }
 
 String docId = "";
@@ -63,6 +75,7 @@ final _router = GoRouter(
           }),
       routes: [
         GoRoute(path: 'checklist', builder: (_, state) => const CheckList()),
+        GoRoute(path: 'map', builder: (_, state) => const NaverMapApp()),
       ],
     ),
     GoRoute(
