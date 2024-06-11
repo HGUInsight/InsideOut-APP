@@ -76,7 +76,6 @@ class _TextScanState extends State<TextScan> {
           ),
         ),
       ),
-      // practice Git
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
