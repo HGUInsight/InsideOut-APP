@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insideout/style.dart';
 import 'package:path_provider/path_provider.dart';
 
 class TextScan extends StatefulWidget {
@@ -58,30 +59,38 @@ class _TextScanState extends State<TextScan> {
         title: Text('ML Kit Text Recognition'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _image == null
-                ? Text('No image selected.')
-                : Image.file(_image!),
-            SizedBox(height: 20),
-            Text(_recognizedText),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _image == null
+                  ? Text('No image selected.')
+                  : Image.file(_image!),
+              SizedBox(height: 20),
+              Text(
+                _recognizedText.isEmpty ? 'Recognized text will be shown here.' : _recognizedText,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
+            backgroundColor: ColorStyle.mainColor1,
             onPressed: () => getImage(ImageSource.camera),
             tooltip: 'Pick Image from Camera',
-            child: Icon(Icons.add_a_photo),
+            child: Icon(Icons.add_a_photo, color: ColorStyle.bgColor2,),
           ),
           SizedBox(height: 10),
           FloatingActionButton(
+            backgroundColor: ColorStyle.mainColor1,
             onPressed: () => getImage(ImageSource.gallery),
             tooltip: 'Pick Image from Gallery',
-            child: Icon(Icons.photo_library),
+            child: Icon(Icons.photo_library, color: ColorStyle.bgColor2,),
           ),
         ],
       ),

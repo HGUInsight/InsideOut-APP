@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:insideout/app_state.dart';
+import 'package:insideout/style.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +21,10 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     var appState = context.watch<ApplicationState>();
     return Scaffold(
+      backgroundColor: ColorStyle.bgColor1,
       appBar: AppBar(
-        title: const Text('마이페이지'),
+        backgroundColor: ColorStyle.bgColor1,
+        title: const Text('마이페이지', style: MyTextStyles.subtitleTextStyle,),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

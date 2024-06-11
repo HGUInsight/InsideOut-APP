@@ -21,8 +21,7 @@ class _SignupThirdState extends State<SignupThird> {
     Icons.group,
     Icons.people,
     Icons.star,
-    Icons.favorite,
-    Icons.local_offer,
+    Icons.favorite
   ];
 
   Future<void> showCompletion() async {

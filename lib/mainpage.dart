@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insideout/app_state.dart';
+import 'package:insideout/main.dart';
 import 'package:insideout/style.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -50,6 +51,15 @@ Widget emptyStat(Function func) {
         ),
       ],
     ),
+  );
+}
+
+void _showInterestSelectionModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return InterestSelectionModal();
+    },
   );
 }
 
@@ -165,6 +175,23 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _checklistSuccessRate = totalTasks > 0 ? (completedTasks / totalTasks) : 0.0;
     });
+  }
+
+  Icon _getInterestIcon(String interest) {
+    switch (interest) {
+      case '취업':
+        return Icon(Icons.work, size: 40, color: ColorStyle.mainColor1);
+      case '공동체':
+        return Icon(Icons.group, size: 40, color: ColorStyle.mainColor1);
+      case '인간관계':
+        return Icon(Icons.people, size: 40, color: ColorStyle.mainColor1);
+      case '관심사 1':
+        return Icon(Icons.star, size: 40, color: ColorStyle.mainColor1);
+      case '관심사 2':
+        return Icon(Icons.favorite, size: 40, color: ColorStyle.mainColor1);
+      default:
+        return Icon(Icons.help, size: 40, color: ColorStyle.mainColor1);
+    }
   }
 
   @override
@@ -369,26 +396,27 @@ class _MainPageState extends State<MainPage> {
                       border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Column(
-                      children: [
-                        Text('관심사', style: TextStyle(color: Colors.grey)),
-                        SizedBox(height: 10),
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: ColorStyle.bgColor2,
-                            borderRadius: BorderRadius.circular(35),
+                    child: InkWell(
+                      onTap: () {
+                        _showInterestSelectionModal(context);
+                      },
+                      child: Column(
+                        children: [
+                          Text('관심사', style: TextStyle(color: Colors.grey)),
+                          SizedBox(height: 10),
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: ColorStyle.bgColor2,
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            child: _getInterestIcon(appState.user.interest),
                           ),
-                          child: Icon(
-                            Icons.group,
-                            size: 40,
-                            color: ColorStyle.mainColor1,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(appState.user.interest, style: TextStyle(color: Colors.black)),
-                      ],
+                          SizedBox(height: 10),
+                          Text(appState.user.interest, style: TextStyle(color: Colors.black)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -396,6 +424,57 @@ class _MainPageState extends State<MainPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+}
+
+class InterestSelectionModal extends StatelessWidget {
+  final List<String> interests = ['취업', '공동체', '인간관계', '관심사 1', '관심사 2'];
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+    var uid = appState.uid;
+
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: ListView.builder(
+        itemCount: interests.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(interests[index]),
+            onTap: () async {
+              // 선택한 관심사를 Firestore에 업데이트
+              QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+                  .collection('user')
+                  .where('uid', isEqualTo: uid)
+                  .get();
+
+              if (userSnapshot.docs.isNotEmpty) {
+                String docId = userSnapshot.docs.first.id;
+                FirebaseFirestore.instance
+                    .collection('user')
+                    .doc(docId)
+                    .update({'interest': interests[index]})
+                    .then((_) {
+                  // 업데이트 후 모달 닫기
+                  Navigator.pop(context);
+                }).catchError((error) {
+                  // 에러 처리
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('업데이트에 실패했습니다: $error')),
+                  );
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('사용자 정보를 찾을 수 없습니다.')),
+                );
+              }
+            },
+          );
+        },
       ),
     );
   }
