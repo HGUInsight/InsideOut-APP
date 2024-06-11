@@ -82,13 +82,14 @@ class _MainPageState extends State<MainPage> {
     var uid = appState.uid;
 
     DateTime startOfDay = DateTime.now().toUtc().subtract(Duration(
-      hours: DateTime.now().hour,
-      minutes: DateTime.now().minute,
-      seconds: DateTime.now().second,
-      milliseconds: DateTime.now().millisecond,
-      microseconds: DateTime.now().microsecond,
-    ));
-    DateTime endOfDay = startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
+          hours: DateTime.now().hour,
+          minutes: DateTime.now().minute,
+          seconds: DateTime.now().second,
+          milliseconds: DateTime.now().millisecond,
+          microseconds: DateTime.now().microsecond,
+        ));
+    DateTime endOfDay =
+        startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
 
     _todoStream = FirebaseFirestore.instance
         .collection('todolist')
@@ -127,7 +128,8 @@ class _MainPageState extends State<MainPage> {
         seconds: DateTime.now().second,
         milliseconds: DateTime.now().millisecond,
         microseconds: DateTime.now().microsecond));
-    DateTime endOfDay = startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
+    DateTime endOfDay =
+        startOfDay.add(Duration(hours: 23, minutes: 59, seconds: 59));
 
     querySnapshot = await FirebaseFirestore.instance
         .collection('todolist')
@@ -159,7 +161,9 @@ class _MainPageState extends State<MainPage> {
 
     DateTime now = DateTime.now();
     DateTime startOfMonth = DateTime(now.year, now.month, 1).toUtc();
-    DateTime endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1)).toUtc();
+    DateTime endOfMonth = DateTime(now.year, now.month + 1, 1)
+        .subtract(Duration(days: 1))
+        .toUtc();
 
     QuerySnapshot monthlySnapshot = await FirebaseFirestore.instance
         .collection('todolist')
@@ -170,10 +174,12 @@ class _MainPageState extends State<MainPage> {
         .get();
 
     int totalTasks = monthlySnapshot.size;
-    int completedTasks = monthlySnapshot.docs.where((doc) => doc['done'] == true).length;
+    int completedTasks =
+        monthlySnapshot.docs.where((doc) => doc['done'] == true).length;
 
     setState(() {
-      _checklistSuccessRate = totalTasks > 0 ? (completedTasks / totalTasks) : 0.0;
+      _checklistSuccessRate =
+          totalTasks > 0 ? (completedTasks / totalTasks) : 0.0;
     });
   }
 
@@ -207,8 +213,13 @@ class _MainPageState extends State<MainPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.calendar_month_rounded, color: ColorStyle.mainColor1,),
-              SizedBox(width: 10,),
+              Icon(
+                Icons.calendar_month_rounded,
+                color: ColorStyle.mainColor1,
+              ),
+              SizedBox(
+                width: 10,
+              ),
               Text(
                 DateFormat.yMMMMd('ko_KR').format(DateTime.now()),
                 style: TextStyle(color: ColorStyle.mainColor1),
@@ -259,7 +270,8 @@ class _MainPageState extends State<MainPage> {
                 Container(
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
+                    border:
+                        Border.all(color: ColorStyle.mainColor1, width: 2.0),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
@@ -276,49 +288,53 @@ class _MainPageState extends State<MainPage> {
             Expanded(
               child: _todoChecked.isNotEmpty
                   ? ListView.builder(
-                itemCount: _todoChecked.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorStyle.mainColor1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        _todoTitles[index],
-                        style: TextStyle(color: ColorStyle.mainColor1),
-                      ),
-                      leading: Icon(
-                        _todoChecked[index]
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: _todoChecked[index] ? Colors.blue : Colors.grey,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _todoChecked[index] = !_todoChecked[index];
-                          FirebaseFirestore.instance
-                              .collection('todolist')
-                              .doc(Provider.of<ApplicationState>(context, listen: false).uid)
-                              .collection('todo1')
-                              .doc(querySnapshot?.docs[index].id)
-                              .update({'done': _todoChecked[index]});
-                        });
+                      itemCount: _todoChecked.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: ColorStyle.mainColor1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              _todoTitles[index],
+                              style: TextStyle(color: ColorStyle.mainColor1),
+                            ),
+                            leading: Icon(
+                              _todoChecked[index]
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_unchecked,
+                              color: _todoChecked[index]
+                                  ? Colors.blue
+                                  : Colors.grey,
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _todoChecked[index] = !_todoChecked[index];
+                                FirebaseFirestore.instance
+                                    .collection('todolist')
+                                    .doc(Provider.of<ApplicationState>(context,
+                                            listen: false)
+                                        .uid)
+                                    .collection('todo1')
+                                    .doc(querySnapshot?.docs[index].id)
+                                    .update({'done': _todoChecked[index]});
+                              });
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-              )
+                    )
                   : emptyStat(() => context.go('/test')),
             ),
             SizedBox(height: 20),
@@ -342,7 +358,8 @@ class _MainPageState extends State<MainPage> {
                     padding: EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: ColorStyle.bgColor2,
-                      border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
+                      border:
+                          Border.all(color: ColorStyle.mainColor1, width: 2.0),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: InkWell(
@@ -351,7 +368,8 @@ class _MainPageState extends State<MainPage> {
                       },
                       child: Column(
                         children: [
-                          Text('체크리스트 성공률', style: TextStyle(color: Colors.grey)),
+                          Text('체크리스트 성공률',
+                              style: TextStyle(color: Colors.grey)),
                           SizedBox(height: 10),
                           Container(
                             width: 70, // 아이콘 크기와 동일한 값으로 수정
@@ -363,16 +381,22 @@ class _MainPageState extends State<MainPage> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                CircularProgressIndicator(
-                                  value: _checklistSuccessRate,
-                                  strokeWidth: 7,
-                                  backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(ColorStyle.mainColor1),
+                                SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: CircularProgressIndicator(
+                                    value: _checklistSuccessRate,
+                                    strokeWidth: 7,
+                                    backgroundColor: Colors.grey[200],
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                            ColorStyle.mainColor1),
+                                  ),
                                 ),
                                 Text(
                                   '${(_checklistSuccessRate * 100).toInt()}',
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: ColorStyle.mainColor1,
                                   ),
@@ -381,7 +405,8 @@ class _MainPageState extends State<MainPage> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          Text('성공률', style: TextStyle(color: ColorStyle.mainColor1)),
+                          Text('성공률',
+                              style: TextStyle(color: ColorStyle.mainColor1)),
                         ],
                       ),
                     ),
@@ -393,7 +418,8 @@ class _MainPageState extends State<MainPage> {
                     padding: EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: ColorStyle.bgColor2,
-                      border: Border.all(color: ColorStyle.mainColor1, width: 2.0),
+                      border:
+                          Border.all(color: ColorStyle.mainColor1, width: 2.0),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: InkWell(
@@ -414,7 +440,8 @@ class _MainPageState extends State<MainPage> {
                             child: _getInterestIcon(appState.user.interest),
                           ),
                           SizedBox(height: 10),
-                          Text(appState.user.interest, style: TextStyle(color: Colors.black)),
+                          Text(appState.user.interest,
+                              style: TextStyle(color: Colors.black)),
                         ],
                       ),
                     ),
@@ -427,7 +454,6 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-
 }
 
 class InterestSelectionModal extends StatelessWidget {
@@ -451,14 +477,15 @@ class InterestSelectionModal extends StatelessWidget {
                   .collection('user')
                   .where('uid', isEqualTo: uid)
                   .get();
-
               if (userSnapshot.docs.isNotEmpty) {
                 String docId = userSnapshot.docs.first.id;
                 FirebaseFirestore.instance
                     .collection('user')
                     .doc(docId)
-                    .update({'interest': interests[index]})
-                    .then((_) {
+                    .update({'interest': interests[index]}).then((_) {
+                  appState.user.interest = interests[index];
+                  appState.notifyListeners();
+                  debugPrint('interest changed : ${appState.user.interest}');
                   // 업데이트 후 모달 닫기
                   Navigator.pop(context);
                 }).catchError((error) {
