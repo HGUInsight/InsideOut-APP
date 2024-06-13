@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insideout/signup/Signup.dart';
 import 'package:insideout/style.dart';
+import 'package:provider/provider.dart';
+
+import 'app_state.dart';
 
 class MentalDegree extends StatefulWidget {
   const MentalDegree({super.key});
@@ -10,6 +13,7 @@ class MentalDegree extends StatefulWidget {
   @override
   State<MentalDegree> createState() => _MentalDegreeState();
 }
+
 Widget mainButton(String text, Function() func) {
   return SizedBox(
     child: ElevatedButton(
@@ -35,11 +39,19 @@ Widget mainButton(String text, Function() func) {
     ),
   );
 }
+
 class _MentalDegreeState extends State<MentalDegree> {
   bool isCheck = false;
 
   @override
+  void initState() {
+    super.initState();
+    context.read<ApplicationState>().fetchMentalHealthData();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var appState = context.watch<ApplicationState>();
     return Scaffold(
       backgroundColor: ColorStyle.bgColor1,
       body: SingleChildScrollView(
@@ -49,13 +61,16 @@ class _MentalDegreeState extends State<MentalDegree> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: ColorStyle.mainColor2,
-                borderRadius: BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+                borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
               ),
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 60,),
+                  SizedBox(height: 60),
                   Text(
                     '나의 멘탈지수는?',
                     style: MyTextStyles.smallTitleTextStyle,
@@ -64,11 +79,12 @@ class _MentalDegreeState extends State<MentalDegree> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '100',
+                        '${appState.mental}',
                         style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                       mainButton('설문조사버튼', () => context.go("/test")),
                     ],
@@ -88,13 +104,14 @@ class _MentalDegreeState extends State<MentalDegree> {
                   ),
                   SizedBox(height: 8),
                   MentalHealthChart(),
+                  /*
                   SizedBox(height: 32),
                   Text(
                     '성실도 그래프',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
-                  DiligenceChart(),
+                  DiligenceChart(),*/
                   SizedBox(height: 16),
                   Row(
                     children: [
@@ -122,6 +139,13 @@ class _MentalDegreeState extends State<MentalDegree> {
 class MentalHealthChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<ApplicationState>();
+
+    // Extract unique categories
+    final categories = appState.mentalHealthDataList
+        .map((data) => data.category)
+        .toList();
+
     return Container(
       decoration: BoxDecorationStyle.graphBox1,
       height: 200,
@@ -130,35 +154,57 @@ class MentalHealthChart extends StatelessWidget {
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
-            barGroups: [
-              BarChartGroupData(x: 0, barRods: [
-                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
-                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
-                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
-              ]),
-              BarChartGroupData(x: 5, barRods: [
-                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
-                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
-                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
-              ]),
-              BarChartGroupData(x: 10, barRods: [
-                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
-                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
-                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
-              ]),
-              BarChartGroupData(x: 15, barRods: [
-                BarChartRodData(fromY: 0, toY: 10, color: Colors.green),
-                BarChartRodData(fromY: 0, toY: 8, color: Colors.orange),
-                BarChartRodData(fromY: 0, toY: 6, color: Colors.red),
-              ]),
-              // Add more BarChartGroupData here
-            ],
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    final category = categories[value.toInt()];
+                    final displayCategory = category.contains('(')
+                        ? category.split('(')[0]
+                        : category;
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      child: Text(
+                        displayCategory,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                  reservedSize: 30,
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: true),
+              ),
+            ),
+            barGroups: appState.mentalHealthDataList.asMap().entries.map(
+                  (entry) {
+                final index = entry.key;
+                final data = entry.value;
+                return BarChartGroupData(
+                  x: index,
+                  barRods: [
+                    BarChartRodData(
+                      fromY: 0,
+                      toY: data.value.toDouble(),
+                      color: Colors.green,
+                    ),
+                  ],
+                );
+              },
+            ).toList(),
           ),
         ),
       ),
     );
   }
 }
+
 
 class DiligenceChart extends StatelessWidget {
   @override
@@ -173,28 +219,44 @@ class DiligenceChart extends StatelessWidget {
             alignment: BarChartAlignment.spaceAround,
             barGroups: [
               BarChartGroupData(x: 0, barRods: [
-                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
-                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
-                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
-                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+                BarChartRodData(
+                    fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(
+                    fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(
+                    fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(
+                    fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
               ]),
               BarChartGroupData(x: 5, barRods: [
-                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
-                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
-                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
-                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+                BarChartRodData(
+                    fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(
+                    fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(
+                    fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(
+                    fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
               ]),
               BarChartGroupData(x: 10, barRods: [
-                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
-                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
-                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
-                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+                BarChartRodData(
+                    fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(
+                    fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(
+                    fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(
+                    fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
               ]),
               BarChartGroupData(x: 15, barRods: [
-                BarChartRodData(fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
-                BarChartRodData(fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
-                BarChartRodData(fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
-                BarChartRodData(fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
+                BarChartRodData(
+                    fromY: 0, toY: 20, color: Colors.lightBlue[100]!),
+                BarChartRodData(
+                    fromY: 0, toY: 25, color: Colors.lightBlue[300]!),
+                BarChartRodData(
+                    fromY: 0, toY: 22, color: Colors.lightBlue[500]!),
+                BarChartRodData(
+                    fromY: 0, toY: 24, color: Colors.lightBlue[700]!),
               ]),
               // Add more BarChartGroupData here
             ],

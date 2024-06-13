@@ -1,0 +1,78 @@
+{
+  "page2": {
+    "document1": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "매사에 흥미나 즐거움이 거의 없었습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document2": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "기분이 가라앉거나 우울하거나 희망이 없다고 느껴졌습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document3": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "잠들기 어렵거나 자주 깬다 / 혹은 잠을 너무 많이 잤습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document4": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "피곤하다고 느끼거나 기운이 거의 없었습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document5": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "식욕이 줄었다 / 혹은 너무 많이 먹었습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document6": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "내 자신이 실패자로 여겨지거나, 가족을 실망시켰다고 느껴졌습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document7": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "신문이나 TV를 보는 것과 같은 일상적인 일에 집중하기 어려웠습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document8": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "다른 사람들이 눈치 챌 정도로, 평소보다 말과 행동이 느리거나 혹은 너무 안절부절 못해서 가만히 앉아 있을 수 없었습니까",
+      "category": "우울증(PHQ-9)"
+    },
+    "document9": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "차라리 죽는 것이 낫겠다고 생각하거나, 어떻게든 자해를 하려고 생각했습니까",
+      "category": "우울증(PHQ-9)"
+    }
+  }
+}
+
+

@@ -255,7 +255,7 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         Icon(Icons.favorite, color: Colors.red),
                         Text(
-                          ' 내 멘탈지수: 80',
+                          ' 내 멘탈지수: ${appState.mental}',
                           style: TextStyle(color: Colors.red),
                         ),
                       ],
