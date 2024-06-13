@@ -1,0 +1,60 @@
+{
+  "page4": {
+    "document1": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "초조하거나 불안하거나 조마조마하게 느낀다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document2": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "걱정하는 것을 멈추거나 조절할 수가 없다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document3": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "여러 가지 것들에 대해 걱정을 너무 많이 한다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document4": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "편하게 있기가 어렵다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document5": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "쉽게 짜증이 나거나 쉽게 성을 내게 된다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document6": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "너무 안절부절못해서 가만히 있기가 힘들다.",
+      "category": "불안장애(GAD-7)"
+    },
+    "document7": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "마치 끔찍한 일이 생길 것처럼 두렵게 느껴진다.",
+      "category": "불안장애(GAD-7)"
+    }
+  }
+}

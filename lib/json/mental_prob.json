@@ -1,0 +1,124 @@
+{
+  "page1": {
+    "document1": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "사람들이 당신에 대해 넌지시 말하거나, 숨겨진 의미로 어떤 말을 하는 것 같은 느낌이 든 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document2": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "어떤 사람들이 겉으로 보이는 것과 다른 것 같다는 느낌이 든 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document3": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "어떤 식으로든 당신이 괴롭힘을 당하고 있는 것 같다는 느낌이 든적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document4": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신을 둘러싼 음모가 있는 것 같은 느낌이 든 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document5": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신의 외모 때문에 사람들이 당신을 이상하게 쳐다보는 것 같은 느낌이 든 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document6": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "컴퓨터와 같은 전자기기들이 당신이 생각하는 방식에 영향을 끼치는 것처럼 느껴질 때가 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document7": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신의 머릿속 생각들을 누군가 빼앗아 가고 있는 것처럼 느껴질 때가 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document8": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신의 머릿속 생각들이 자신의 것이 아닌 것처럼 느껴질 때가 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document9": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신의 생각들이 너무나 생생해서 다른 사람들이 당신의 생각을 들을까봐 걱정된 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document10": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "당신의 생각을 메아리처럼 들어본 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document11": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "어떤 기운이나 힘이 당신을 통제하는 것처럼 느껴질 때가 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document12": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "가족이나 친구, 지인들과 똑같이 생긴 분신이 나타난 것처럼 느껴질 때가 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document13": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "혼자 있을 때 어떤 음성을 들은 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document14": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "혼자 있을 때 어떤 사람들이 서로 말하는 것을 들은 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    },
+    "document15": {
+      "check1": 1,
+      "check2": 2,
+      "check3": 3,
+      "check4": 4,
+      "problem": "다른 사람 눈에는 보이지 않는 어떤 사물이나, 사람 혹은 동물을 본 적이 있습니까?",
+      "category": "정신질환(비전트레이닝 센터)"
+    }
+  }
+}

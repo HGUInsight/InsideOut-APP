@@ -8,6 +8,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insideout/checklist.dart';
 import 'package:insideout/firebase_options.dart';
+import 'package:insideout/json/upload_json.dart';
 import 'package:insideout/mainpage.dart';
 import 'package:insideout/navermap.dart';
 import 'package:insideout/navigation.dart';
@@ -28,6 +29,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('ko_KR','');
   await _initializeMap();
+  //파이어스토어에 Json 추가
+  //uploadJsonToFirestore();
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
     builder: ((context, child) =>
