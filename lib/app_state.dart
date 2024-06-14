@@ -10,6 +10,7 @@ class ApplicationState extends ChangeNotifier {
   String uid = "";
   int mental = 0;
   int totalScore = 0;
+  String email = "";
   Map<int, List<int?>> selectedOptions = {};
 
   ApplicationState() {
@@ -32,6 +33,7 @@ class ApplicationState extends ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((event) {
       if (event != null) {
         uid = event.uid;
+        email = event.email!;
         getUserData();
       }
     });
@@ -152,7 +154,9 @@ class ApplicationState extends ChangeNotifier {
       "interest": user.interest,
       "disable": user.disable,
       "severe": user.severe,
-      "uid": uid
+      "uid": uid,
+      "level" : 1,
+      "email": email,
     });
     notifyListeners();
   }
@@ -185,6 +189,61 @@ class ApplicationState extends ChangeNotifier {
     return calculatedScore.round();
   }
 
+  Future<void> addTodoList() async {
+    // Get the current user's UID
+
+    // Define the titles for the todo items
+    List<String> titles = [
+      "센터 내 다른 사람에게 인사하기",
+      "자원봉사자와 간단한 대화 나누기",
+      "센터 내 작은 모임 참석하기",
+      "다른 노숙인에게 도움을 요청해보기",
+      "함께 청소하기",
+      "간단한 인사말 익히기",
+      "하루에 한 번 감사한 일 적기",
+      "공동 식사에 참여하기",
+      "자기소개 연습하기",
+      "다른 사람의 이야기 경청하기"
+    ];
+
+    // Define the timestamps for the todo items
+    List<Timestamp> timestamps = [
+      Timestamp.now(),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 24))),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 36))),
+      Timestamp.now(),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 24))),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 36))),
+      Timestamp.now(),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 24))),
+      Timestamp.fromDate(DateTime.now().add(Duration(hours: 36))),
+      Timestamp.now()
+    ];
+
+    try {
+      // Reference to the user's document in the 'todolist' collection
+      DocumentReference userDocRef = FirebaseFirestore.instance
+          .collection('todolist')
+          .doc(uid);
+
+      // Add the todo items to the 'todo1' sub-collection
+      for (int i = 0; i < titles.length; i++) {
+        await userDocRef.collection('todo1').add({
+          'title': titles[i],
+          'datetime': timestamps[i],
+          'done': false,
+        });
+      }
+
+      print('Todo list added successfully');
+    } catch (e) {
+      print('Error adding todo list: $e');
+    }
+
+    notifyListeners();
+  }
+
+
   Future<void> saveMentalScore(int score) async {
     // Find the document where the uid field matches the current user's uid
     var querySnapshot = await FirebaseFirestore.instance
@@ -199,7 +258,7 @@ class ApplicationState extends ChangeNotifier {
 
       // Update the 'mental' field with the new score
       await userDocRef.update({
-        'mental': totalScore,
+        'mental': score,
       });
     } else {
       print('No document found for the current user UID');

@@ -31,27 +31,31 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> signInWithIdAndPassword() async {
     final id = _idController.text;
     final pwd = _pwdController.text;
-
+    debugPrint("id :$id pwd: $pwd");
     try {
       final QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('user')
           .where('id', isEqualTo: id)
           .where('pwd', isEqualTo: pwd)
           .get();
-
+      debugPrint("snapshot : ${snapshot.docs[0].data()}");
+      final userData = snapshot.docs[0].data() as Map<String, dynamic>;
       if (snapshot.docs.isNotEmpty) {
+        debugPrint("email : ${userData['email']}");
         final credential = EmailAuthProvider.credential(
-          email: id, // Assuming 'id' is the email for this example
+          email: userData['email'],
           password: pwd,
         );
+        debugPrint("credential made!!");
         await FirebaseAuth.instance.signInWithCredential(credential);
+
         print("Signed in successfully.");
       } else {
         _showErrorDialog('존재하지 않는 아이디입니다.');
       }
     } catch (e) {
       _showErrorDialog('로그인 중 오류가 발생했습니다.');
-      print(e);
+      print("debug error :$e");
     }
   }
 

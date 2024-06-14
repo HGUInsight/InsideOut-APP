@@ -384,6 +384,7 @@ class _TestFormState extends State<TestForm> {
                                       int score = appState.calculateMentalScore();
                                       await appState.saveMentalScore(score);
                                       appState.setMental(score);
+                                      appState.addTodoList();
                                       showSubmissionModal(context, score);
                                     } else {
                                       if (pageNum < totalCount) {

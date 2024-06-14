@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,6 +7,8 @@ import 'package:insideout/app_state.dart';
 import 'package:insideout/style.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+
+import 'avatar.dart';
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -32,9 +35,22 @@ class _SettingState extends State<Setting> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  child: Lottie.asset('assets/egg_ani.json'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ExpandedAvatarScreen1(),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: 'avatar',
+                    child: CircleAvatar(
+                      radius: 40,
+                      child: Lottie.asset('assets/egg.json'),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 16,
@@ -98,6 +114,7 @@ class _SettingState extends State<Setting> {
               title: Text('로그아웃'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () async {
+                appState.mental = 0;
                 await FirebaseAuth.instance.signOut();
                 await _googleSignIn.signOut();
                 context.go("/login");
