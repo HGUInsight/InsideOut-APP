@@ -91,7 +91,9 @@ class ApplicationState extends ChangeNotifier {
         user.name = event.docs[0].data()['name'];
         user.center = event.docs[0].data()['center'];
         user.interest = event.docs[0].data()['interest'];
-        mental = event.docs[0].data()['mental'];
+        if(event.docs[0].data()['mental'] != null) {
+          mental = event.docs[0].data()['mental'];
+        }
       } else {
         // Handle case where no data is found
       }
@@ -185,7 +187,9 @@ class ApplicationState extends ChangeNotifier {
   }
 
   int calculateMentalScore() {
+    debugPrint('totalScore : $totalScore');
     double calculatedScore = ((133 - totalScore) / 133) * 100;
+    debugPrint('mentalScore : $calculatedScore');
     return calculatedScore.round();
   }
 

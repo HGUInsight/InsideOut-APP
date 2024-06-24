@@ -186,15 +186,15 @@ class _MainPageState extends State<MainPage> {
 
   Icon _getInterestIcon(String interest) {
     switch (interest) {
-      case '취업':
+      case '긍정적 사고':
         return Icon(Icons.work, size: 40, color: ColorStyle.mainColor1);
       case '공동체':
         return Icon(Icons.group, size: 40, color: ColorStyle.mainColor1);
-      case '인간관계':
+      case '자기계발':
         return Icon(Icons.people, size: 40, color: ColorStyle.mainColor1);
-      case '관심사 1':
+      case '운동':
         return Icon(Icons.star, size: 40, color: ColorStyle.mainColor1);
-      case '관심사 2':
+      case '건강 관리':
         return Icon(Icons.favorite, size: 40, color: ColorStyle.mainColor1);
       default:
         return Icon(Icons.help, size: 40, color: ColorStyle.mainColor1);

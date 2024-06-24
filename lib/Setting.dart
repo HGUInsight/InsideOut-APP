@@ -83,7 +83,7 @@ class _SettingState extends State<Setting> {
                 // Navigate to account management
               },
             ),
-            ListTile(
+            /*ListTile(
               leading: Icon(Icons.document_scanner),
               title: Text('텍스트 인식'),
               trailing: Icon(Icons.arrow_forward_ios),
@@ -91,7 +91,7 @@ class _SettingState extends State<Setting> {
                 context.go('/textscan');
                 // Navigate to account management
               },
-            ),
+            ),*/
             ListTile(
               leading: Icon(Icons.home),
               title: Text('센터'),
