@@ -121,7 +121,7 @@ final _router = GoRouter(
       path: "/test",
       builder: (context, state) => const StartTest(),
       routes: [
-        GoRoute(path: 'page', builder: (context, state) => const TestForm())
+        GoRoute(path: 'page', builder: (context, state) => TestForm('정신질환(비전트레이닝 센터)',1))
       ],
     ),
   ],

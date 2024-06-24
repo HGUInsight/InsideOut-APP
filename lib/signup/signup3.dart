@@ -15,7 +15,7 @@ class SignupThird extends StatefulWidget {
 
 class _SignupThirdState extends State<SignupThird> {
   int? _selectedInterest;
-  final List<String> interests = ['취업', '공동체', '인간관계', '관심사 1', '관심사 2'];
+  final List<String> interests = ['긍정적 사고', '공동체', '자기계발', '운동', '건강 관리'];
   final List<IconData> interestIcons = [
     Icons.work,
     Icons.group,

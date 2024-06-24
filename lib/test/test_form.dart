@@ -1,59 +1,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:insideout/test/test_card.dart';
 import 'package:provider/provider.dart';
-import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../app_state.dart';
 import '../style.dart';
+import 'test_card.dart';
+class TestForm extends StatelessWidget {
+  final int pageNum;
+  final String title;
 
-class TestForm extends StatefulWidget {
-  const TestForm({Key? key});
+  TestForm(this.title, this.pageNum);
 
-  @override
-  State<TestForm> createState() => _TestFormState();
-}
-
-class _TestFormState extends State<TestForm> {
-  List<int?> selectedOptions = [];
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> questions = [];
-  int pageNum = 1;
+  final List<int?> selectedOptions = [];
+  final List<QueryDocumentSnapshot<Map<String, dynamic>>> questions = [];
   int totalCount = 0;
   bool showValidationError = false;
   QuerySnapshot<Map<String, dynamic>>? querySnapshot;
-  String appBarTitle = '';
-  late AutoScrollController _controller;
-  late FocusNode submitButtonFocusNode;
 
-  Future<void> getCategory() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
-          .collection('test')
-          .doc('z7ZmCEhn2ARYwQQ26Gsk')
-          .collection("page$pageNum")
-          .limit(1)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        var data = snapshot.docs.first.data() as Map<String, dynamic>;
-        setState(() {
-          appBarTitle = data['category'] ?? '';
-        });
-      } else {
-        setState(() {
-          appBarTitle = '';
-        });
-      }
-    } catch (e) {
-      print('Error getting category: $e');
-      setState(() {
-        appBarTitle = '';
-      });
+  Future<String> getCategory(int num) async {
+    String str;
+    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection('test')
+        .doc('z7ZmCEhn2ARYwQQ26Gsk')
+        .collection("page$num")
+        .limit(1)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      var data = snapshot.docs.first.data();
+      str = data['category'] ?? '';
+      return str;
+    } else {
+      str = '';
+      return str;
     }
   }
 
   Future<int> getTestCount() async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> document = await FirebaseFirestore.instance
+      DocumentSnapshot<Map<String, dynamic>> document = await FirebaseFirestore
+          .instance
           .collection('test')
           .doc('z7ZmCEhn2ARYwQQ26Gsk')
           .get();
@@ -67,27 +55,6 @@ class _TestFormState extends State<TestForm> {
       print('Error getting test count: $e');
       return 0;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AutoScrollController(); // Initialize AutoScrollController
-    submitButtonFocusNode = FocusNode();
-
-    // Fetch category when the widget initializes
-    getCategory();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      var appState = context.read<ApplicationState>();
-      appState.resetTotalScore();
-    });
-  }
-
-  @override
-  void dispose() {
-    submitButtonFocusNode.dispose();
-    _controller.dispose(); // AutoScrollController dispose 추가
-    super.dispose();
   }
 
   void showExitWarningDialog(BuildContext context) {
@@ -192,10 +159,11 @@ class _TestFormState extends State<TestForm> {
     );
   }
 
-  Future<void> submitData() async {
+  Future<void> submitData(BuildContext context) async {
     var appState = context.read<ApplicationState>();
     var batch = FirebaseFirestore.instance.batch();
-    var userTestRef = FirebaseFirestore.instance.collection('result').doc(appState.uid);
+    var userTestRef =
+    FirebaseFirestore.instance.collection('result').doc(appState.uid);
     Map<int, String> category = {
       1: "정신질환(비전트레이닝 센터)",
       2: "우울증(PHQ-9)",
@@ -206,12 +174,13 @@ class _TestFormState extends State<TestForm> {
     for (int i = 0; i < selectedOptions.length; i++) {
       if (selectedOptions[i] != null) {
         var questionDoc = querySnapshot?.docs[i];
-        print("Adding score: ${selectedOptions[i]}");  // Debug print
+        print("Adding score: ${selectedOptions[i]}"); // Debug print
 
         appState.addTotalScore(selectedOptions[i]!);
 
         if (questionDoc != null) {
-          var userTestQuestionRef = userTestRef.collection('page$pageNum').doc(questionDoc.id);
+          var userTestQuestionRef =
+          userTestRef.collection('page$pageNum').doc(questionDoc.id);
           batch.set(
             userTestQuestionRef,
             {
@@ -226,19 +195,21 @@ class _TestFormState extends State<TestForm> {
     }
 
     await batch.commit();
-    print("Total score after submission: ${appState.totalScore}");  // Debug print
+    print(
+        "Total score after submission: ${appState.totalScore}"); // Debug print
   }
 
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('got pageNum and category : $pageNum, $title');
     return Scaffold(
       backgroundColor: ColorStyle.bgColor1,
       appBar: AppBar(
         backgroundColor: ColorStyle.bgColor1,
         elevation: 0,
         title: Text(
-          appBarTitle,
+          title,
           style: MyTextStyles.titleTextStyle2,
         ),
         leading: IconButton(
@@ -254,7 +225,7 @@ class _TestFormState extends State<TestForm> {
           future: getTestCount(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
@@ -278,13 +249,12 @@ class _TestFormState extends State<TestForm> {
                     var docs = querySnapshot!.docs;
 
                     if (selectedOptions.length != docs.length) {
-                      selectedOptions = List<int?>.filled(docs.length, null);
+                      selectedOptions.clear();
+                      selectedOptions.addAll(List<int?>.filled(docs.length, null));
                     }
 
-                    questions = docs
-                        .where((doc) =>
-                    selectedOptions[docs.indexOf(doc)] == null)
-                        .toList();
+                    questions.clear();
+                    questions.addAll(docs);
 
                     return Column(
                       children: [
@@ -312,31 +282,24 @@ class _TestFormState extends State<TestForm> {
                         Expanded(
                           child: questions.isNotEmpty
                               ? ListView.builder(
-                            controller: _controller, // ScrollController 설정
                             itemCount: questions.length,
                             itemBuilder: (context, index) {
+                              if (index >= selectedOptions.length) {
+                                return SizedBox.shrink(); // 빈 위젯 반환
+                              }
+
                               var doc = questions[index];
                               var question = doc['problem'];
-                              var options =
-                              getOptionsBasedOnCategory(
-                                  appBarTitle, doc);
+                              var options = getOptionsBasedOnCategory(
+                                  title, doc);
 
-                              return AutoScrollTag(
-                                key: ValueKey(index),
-                                controller: _controller,
-                                index: index,
-                                child: _buildQuestionCard(
-                                  question: question,
-                                  options: options,
-                                  selectedOption:
-                                  selectedOptions[docs.indexOf(doc)],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedOptions[
-                                      docs.indexOf(doc)] = value;
-                                    });
-                                  },
-                                ),
+                              return QuestionCard(
+                                question: question,
+                                options: options,
+                                selectedOption: selectedOptions[index],
+                                onChanged: (value) {
+                                  selectedOptions[index] = value;
+                                },
                               );
                             },
                           )
@@ -355,14 +318,9 @@ class _TestFormState extends State<TestForm> {
                             if (pageNum > 1)
                               _navigationButton(
                                 '이전',
-                                    () {
-                                  setState(() {
-                                    if (pageNum > 1) {
-                                      pageNum--;
-                                      selectedOptions = [];
-                                      getCategory(); // Update category on page change
-                                    }
-                                  });
+                                    () async {
+                                      String category = await getCategory(pageNum - 1); // Update category on page change
+                                      context.push('/test/page', extra: [category, pageNum - 1]);
                                 },
                                 Colors.white,
                                 ColorStyle.mainColor1,
@@ -373,28 +331,32 @@ class _TestFormState extends State<TestForm> {
                               pageNum / totalCount == 1 ? '제출' : '다음',
                                   () {
                                 if (selectedOptions.contains(null)) {
-                                  setState(() {
-                                    showValidationError = true;
-                                  });
+                                  showValidationError = true;
                                 } else {
                                   showValidationError = false;
-                                  submitData().then((_) async {
+                                  submitData(context).then((_) async {
                                     if (pageNum / totalCount == 1) {
-                                      var appState = context.read<ApplicationState>();
-                                      int score = appState.calculateMentalScore();
+                                      var appState =
+                                      context.read<ApplicationState>();
+                                      int score =
+                                      appState.calculateMentalScore();
                                       await appState.saveMentalScore(score);
                                       appState.setMental(score);
                                       appState.addTodoList();
+                                      appState.totalScore = 0;
                                       showSubmissionModal(context, score);
                                     } else {
                                       if (pageNum < totalCount) {
-                                        setState(() {
-                                          pageNum++;
-                                          selectedOptions = context
-                                              .read<ApplicationState>()
-                                              .getSelectedOptions(pageNum);
-                                          getCategory(); // Update category on page change
-                                        });
+                                        selectedOptions.clear();
+                                        debugPrint('pageNum : ${pageNum + 1}');
+                                        String category = await getCategory(pageNum + 1);
+                                        debugPrint("current category : $category");
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => TestForm(category, pageNum + 1),
+                                          ),
+                                        );
                                       }
                                     }
                                   });
@@ -402,7 +364,6 @@ class _TestFormState extends State<TestForm> {
                               },
                               ColorStyle.mainColor1,
                               ColorStyle.bgColor2,
-                              submitButtonFocusNode,
                             ),
                           ],
                         ),
@@ -418,8 +379,8 @@ class _TestFormState extends State<TestForm> {
     );
   }
 
-  List<String> getOptionsBasedOnCategory(String category,
-      QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+  List<String> getOptionsBasedOnCategory(
+      String category, QueryDocumentSnapshot<Map<String, dynamic>> doc) {
     List<String> options;
     switch (category) {
       case '정신질환(비전트레이닝 센터)':
@@ -454,62 +415,9 @@ class _TestFormState extends State<TestForm> {
     return options;
   }
 
-  Widget _buildQuestionCard({
-    required String question,
-    required List<String> options,
-    required int? selectedOption,
-    required ValueChanged<int?> onChanged,
-  }) {
-    return Card(
-      color: ColorStyle.bgColor1,
-      margin: EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: ColorStyle.mainColor1, width: 1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              question,
-              style: TextStyle(fontSize: 18, color: ColorStyle.mainColor1),
-            ),
-            SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: options.length,
-              itemBuilder: (context, i) {
-                return RadioListTile<int>(
-                  value: i,
-                  groupValue: selectedOption,
-                  title: Text(
-                    options[i],
-                    style: TextStyle(color: ColorStyle.mainColor1),
-                  ),
-                  onChanged: (value) {
-                    onChanged(value);
-                    setState(() {
-                      selectedOptions[selectedOptions.indexOf(null)] = value;
-                      questions.removeWhere((q) => q['problem'] == question);
-                      print("Selected options: $selectedOptions");  // Debug print
-                    });
-                  },
-                  activeColor: ColorStyle.mainColor1,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
   Widget _navigationButton(String text, VoidCallback onPressed,
-      Color backgroundColor, Color textColor, [FocusNode? focusNode]) {
+      Color backgroundColor, Color textColor,
+      [FocusNode? focusNode]) {
     return ElevatedButton(
       onPressed: onPressed,
       focusNode: focusNode,
